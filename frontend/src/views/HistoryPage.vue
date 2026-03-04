@@ -1,138 +1,100 @@
 <template>
-  <div class="history-container">
-    <header class="page-header">
-      <h1 class="title">학습 히스토리</h1>
-      <p class="subtitle">나의 성장을 한눈에 확인하세요.</p>
-    </header>
+  <div class="app-layout">
+    
+    <AppSidebar />
 
-    <section class="summary-section">
-      <div class="stat-card">
-        <span class="label">이번 주 학습량</span>
-        <div class="value">24.5<small>h</small></div>
-        <div class="trend up">▲ 15%</div>
-      </div>
-      <div class="stat-card">
-        <span class="label">완료한 노드</span>
-        <div class="value">42<small>개</small></div>
-        <div class="trend text">전체 대비 78%</div>
-      </div>
-      <div class="stat-card">
-        <span class="label">연속 학습일</span>
-        <div class="value">12<small>일</small></div>
-        <div class="trend text">최고 기록 15일</div>
-      </div>
-    </section>
+    <main class="main-content">
+      <div class="history-page-container">
+        <header class="page-header">
+          <h2>학습 히스토리</h2>
+          <p>과거 학습 기록과 프롬프트 내역을 확인하세요.</p>
+        </header>
 
-    <div class="content-layout">
-      <article class="chart-box card">
-        <div class="card-header">
-          <h3>학습 성취도 추이</h3>
-          <select class="period-select">
-            <option>최근 7일</option>
-            <option>최근 30일</option>
-          </select>
-        </div>
-        <div class="chart-content">
-          <div class="placeholder-graph">
-             [ 주간 성취도 그래프 영역 ]
+        <div class="history-content">
+          <div class="empty-state">
+            <i class="fas fa-history"></i>
+            <p>아직 기록된 히스토리가 없습니다.</p>
           </div>
-        </div>
-      </article>
-
-      <aside class="activity-log card">
-        <div class="card-header">
-          <h3>최근 활동</h3>
-        </div>
-        <ul class="log-list">
-          <li v-for="i in 5" :key="i" class="log-item">
-            <div class="status-dot"></div>
-            <div class="log-info">
-              <p class="log-title">ROS2 Jetson Orin 통신 테스트</p>
-              <p class="log-date">2026.03.04 14:20</p>
-            </div>
-            <span class="category-tag">AIoT</span>
-          </li>
-        </ul>
-      </aside>
-    </div>
+          </div>
+      </div>
+    </main>
+    
   </div>
 </template>
 
+<script setup>
+// 사이드바 컴포넌트 불러오기 (필수)
+import AppSidebar from '@/components/AppSidebar.vue'
+
+// 필요한 데이터나 로직을 여기에 작성하세요
+import { ref } from 'vue'
+
+const historyList = ref([])
+</script>
+
 <style scoped>
-.history-container {
-  padding: 30px;
-  background-color: var(--bg-base); /* #18181e */
-  min-height: 100vh;
+/* MainPage.vue와 동일한 레이아웃 스타일 적용 */
+.app-layout {
+  display: flex; 
+  width: 100%; 
+  height: 100vh; 
+  overflow: hidden;
+  background: var(--bg-base); 
   color: var(--text-primary);
+  font-family: 'Escoredream', system-ui, sans-serif;
 }
 
-.summary-section {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.stat-card {
-  background: var(--bg-surface); /* #1e1e24 */
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.stat-card .value {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--accent); /* #3b82f6 */
-  margin: 10px 0;
-}
-
-.content-layout {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-}
-
-.card {
+.main-content {
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+  overflow-y: auto; /* 내용이 길어지면 스크롤 생성 */
   background: var(--bg-surface);
-  border-radius: 16px;
-  padding: 20px;
 }
 
-.card-header {
+/* 히스토리 페이지 전용 스타일 */
+.history-page-container {
+  padding: 32px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.history-content {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-height: 400px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  justify-content: center;
 }
 
-.log-list {
-  list-style: none;
-  padding: 0;
+.empty-state {
+  text-align: center;
+  color: var(--text-faint);
 }
 
-.log-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  background: var(--accent);
-  border-radius: 50%;
-  margin-right: 15px;
-  box-shadow: 0 0 8px var(--accent);
-}
-
-.category-tag {
-  font-size: 0.75rem;
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--accent);
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-left: auto;
+.empty-state i {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: 0.5;
 }
 </style>
