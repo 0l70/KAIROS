@@ -130,8 +130,7 @@ const NAV_ITEMS = [
     ],
   },
   { to: '/recommend', icon: 'fas fa-lightbulb',       label: '추천'         },
-  { to: '/analytics', icon: 'fas fa-history',          label: '히스토리'     },
-  { to: '/analysis',  icon: 'fas fa-chart-line',       label: '분석'         },
+  { to: '/history',   icon: 'fas fa-history',         label: '히스토리'     },
 ]
 </script>
 

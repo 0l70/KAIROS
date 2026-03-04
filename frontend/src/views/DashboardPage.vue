@@ -1,260 +1,155 @@
 <template>
-  <div class="app-layout">
-    <AppSidebar />
+  <div class="page-root">
+    <header class="page-header">
+      <div class="header-left"><i class="fas fa-chart-line" /> 분석 대시보드</div>
+      <div class="header-right"><i class="fas fa-bell" /> <div class="avatar" /></div>
+    </header>
 
-    <main class="main-content">
-      <!-- Top header -->
-      <div class="page-header">
-        <span class="page-title">분석 대시보드</span>
-        <div class="header-right">
-          <button class="icon-btn"><i class="fas fa-bell" /></button>
-          <RouterLink to="/mypage" class="avatar-btn">K</RouterLink>
+    <main class="dashboard-content">
+      <section class="profile-section">
+        <div class="profile-avatar"><i class="fas fa-user-astronaut" /></div>
+        <div class="profile-info">
+          <h2>김철수님</h2>
+          <p>분석 완료일: 2026년 3월 15일</p>
         </div>
-      </div>
+      </section>
 
-      <div class="dashboard-body fade-in">
-
-        <!-- 사용자 카드 -->
-        <div class="user-card">
-          <div class="user-avatar">
-            <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Kairos" alt="avatar" />
+      <section class="summary-cards">
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon"><i class="fas fa-code" /></div>
+            <span class="card-label">총 기술</span>
           </div>
-          <div>
-            <h1>김철수님</h1>
-            <p class="user-sub">분석 완료일: 2026년 3월 3일</p>
-          </div>
+          <h3>12</h3>
+          <p>확인된 기술 스택</p>
         </div>
-
-        <!-- 스탯 카드 -->
-        <div class="stats-grid">
-          <div v-for="stat in stats" :key="stat.label" class="stat-card">
-            <div class="stat-value">{{ stat.value }}</div>
-            <div class="stat-label">{{ stat.label }}</div>
-            <div class="stat-badge"><i :class="stat.icon" /></div>
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon"><i class="fas fa-star" /></div>
+            <span class="card-label">숙련도</span>
           </div>
+          <h3>중급</h3>
+          <p>전반적 수준</p>
         </div>
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon"><i class="fas fa-trophy" /></div>
+            <span class="card-label">강점</span>
+          </div>
+          <h3>프론트엔드</h3>
+          <p>주요 전문 분야</p>
+        </div>
+      </section>
 
-        <!-- 기술 스택 분포 -->
-        <div class="section-card">
-          <div class="section-card-header">
-            <span>기술 스택 분포</span>
-            <button class="btn-sm">내보내기</button>
-          </div>
-          <div class="chart-placeholder">
-            <i class="fas fa-chart-bar" />
-            <span>기술 스택 차트</span>
-            <small>카테고리별 기술 분포 그래프</small>
-          </div>
-          <div class="chart-legend">
-            <div v-for="l in legend" :key="l.label" class="legend-item">
-              <div class="legend-dot" :style="{ background: l.color }" />
-              {{ l.label }}
+      <section class="chart-section panel">
+        <div class="panel-header">
+          <h3>기술 스택 분포</h3>
+          <button class="btn-outline"><i class="fas fa-download" /> 내보내기</button>
+        </div>
+        <div class="chart-placeholder">
+          <i class="fas fa-chart-pie" />
+          <p>기술 스택 차트<br><span>카테고리별 기술 분포 그래프</span></p>
+        </div>
+        <div class="chart-legend">
+          <span><div class="dot" style="background:#111" /> 프론트엔드</span>
+          <span><div class="dot" style="background:#666" /> 백엔드</span>
+          <span><div class="dot" style="background:#aaa" /> 데이터베이스</span>
+          <span><div class="dot" style="background:#ddd" /> 도구</span>
+        </div>
+      </section>
+
+      <section class="skills-section panel">
+        <h3>상세 기술 목록</h3>
+        <div class="skill-list">
+          <div v-for="skill in skills" :key="skill.name" class="skill-item">
+            <div class="skill-info">
+              <div class="skill-icon"><i :class="skill.icon" /></div>
+              <div>
+                <h4>{{ skill.name }}</h4>
+                <p>{{ skill.desc }}</p>
+              </div>
+            </div>
+            <div class="skill-bar-wrap">
+              <div class="skill-bar"><div class="fill" :style="{ width: skill.score + '%' }" /></div>
+              <span class="skill-score">{{ skill.score }}%</span>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- 상세 기술 목록 -->
-        <div class="section-card">
-          <div class="section-card-header"><span>상세 기술 목록</span></div>
-          <div class="skill-list">
-            <div v-for="skill in skills" :key="skill.name" class="skill-row">
-              <div class="skill-meta">
-                <div class="skill-emoji">{{ skill.emoji }}</div>
-                <div>
-                  <div class="skill-name">{{ skill.name }}</div>
-                  <div class="skill-desc">{{ skill.desc }}</div>
-                </div>
-              </div>
-              <div class="skill-bar-wrap">
-                <div class="skill-bar">
-                  <div class="skill-bar-fill" :style="{ width: skill.pct + '%' }" />
-                </div>
-                <span class="skill-pct">{{ skill.pct }}%</span>
-              </div>
-            </div>
-          </div>
+      <section class="confirm-section">
+        <div class="confirm-icon"><i class="fas fa-question" /></div>
+        <h3>이 결과가 맞나요?</h3>
+        <p>분석된 기술 스택과 숙련도가 정확한지 확인해 주세요.</p>
+        <div class="confirm-actions">
+          <button class="btn-yes" @click="$router.push('/curriculum-suggest')"><i class="fas fa-check" /> 네</button>
+          <button class="btn-no" @click="$router.push('/feedback')"><i class="fas fa-times" /> 아니오</button>
         </div>
-
-        <!-- 분석 확인 -->
-        <div class="confirm-card">
-          <div class="confirm-icon"><i class="fas fa-question" /></div>
-          <h3>이 결과가 맞나요?</h3>
-          <p>분석된 기술 스택과 숙련도가 정확한지 확인해 주세요.</p>
-          <div class="confirm-actions">
-            <button class="btn-yes" @click="$router.push('/curriculum-suggest')"><i class="fas fa-check-circle" /> 네</button>
-            <button class="btn-no" @click="$router.push('/feedback')"><i class="fas fa-times" /> 아니오</button>
-          </div>
-        </div>
-
-      </div>
+      </section>
     </main>
   </div>
 </template>
 
 <script setup>
-import AppSidebar from '@/components/AppSidebar.vue'
-
-const stats = [
-  { value: '12',    label: '확인된 기술 스택', icon: 'fas fa-layer-group' },
-  { value: '중급',  label: '전반적 수준',       icon: 'fas fa-user' },
-  { value: '프론트', label: '주요 전문 분야',    icon: 'fas fa-code' },
-]
-
-const legend = [
-  { label: '프론트엔드', color: '#818cf8' },
-  { label: '백엔드',     color: '#38bdf8' },
-  { label: '데이터베이스', color: '#10b981' },
-  { label: '도구',       color: '#f59e0b' },
-]
-
 const skills = [
-  { name: 'React',   desc: '프론트엔드 프레임워크', pct: 85, emoji: '⚛️' },
-  { name: 'Node.js', desc: '백엔드 런타임',         pct: 70, emoji: '🟢' },
-  { name: 'Python',  desc: '프로그래밍 언어',       pct: 65, emoji: '🐍' },
-  { name: 'Docker',  desc: '컨테이너 플랫폼',       pct: 60, emoji: '🐳' },
+  { name: 'React', desc: '프론트엔드 프레임워크', score: 85, icon: 'fab fa-react' },
+  { name: 'Node.js', desc: '백엔드 런타임', score: 70, icon: 'fab fa-node-js' },
+  { name: 'Python', desc: '프로그래밍 언어', score: 65, icon: 'fab fa-python' },
+  { name: 'Docker', desc: '컨테이너 플랫폼', score: 60, icon: 'fab fa-docker' },
 ]
 </script>
 
 <style scoped>
-.app-layout {
-  display: flex; width: 100%; height: 100vh; overflow: hidden;
-  background: var(--bg-base); color: var(--text-primary);
-  font-family: 'Escoredream', system-ui, sans-serif;
-}
-.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.page-root { min-height: 100vh; background: #fafafa; font-family: 'Escoredream', sans-serif; color: #111; padding-bottom: 60px; }
+.page-header { display: flex; justify-content: space-between; padding: 16px 24px; background: #fff; border-bottom: 1px solid #eaeaea; }
+.header-left { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.header-right { display: flex; align-items: center; gap: 16px; color: #666; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: #ddd; }
 
-.page-header {
-  height: 64px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 28px; flex-shrink: 0;
-}
-.page-title { font-weight: 700; font-size: 15px; color: var(--text-primary); }
-.header-right { display: flex; align-items: center; gap: 14px; }
-.icon-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-muted); font-size: 16px; transition: color 0.15s;
-}
-.icon-btn:hover { color: var(--text-primary); }
-.avatar-btn {
-  width: 32px; height: 32px; border-radius: 50%; cursor: pointer; text-decoration: none;
-  background: linear-gradient(135deg, #818cf8, #38bdf8);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; color: #fff; font-weight: 700;
-}
+.dashboard-content { max-width: 860px; margin: 0 auto; padding: 40px 20px; }
+.profile-section { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+.profile-avatar { width: 56px; height: 56px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #555; }
+.profile-info h2 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.profile-info p { font-size: 13px; color: #666; }
 
-.dashboard-body {
-  flex: 1; overflow-y: auto; padding: 28px 32px;
-  display: flex; flex-direction: column; gap: 20px;
-  scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent;
-}
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-.fade-in { animation: fadeIn 0.35s ease both; }
+.summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.card { background: #fff; border: 1px solid #eaeaea; border-radius: 12px; padding: 20px; }
+.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-icon { width: 32px; height: 32px; background: #111; color: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.card-label { font-size: 12px; color: #888; font-weight: 600; }
+.card h3 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+.card p { font-size: 12px; color: #666; }
 
-/* 사용자 카드 */
-.user-card {
-  display: flex; align-items: center; gap: 18px;
-  background: var(--bg-surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 22px 24px;
-}
-.user-avatar {
-  width: 58px; height: 58px; border-radius: 50%;
-  background: var(--bg-elevated); overflow: hidden; flex-shrink: 0;
-  border: 2px solid var(--border);
-}
-.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.user-card h1 { font-size: 20px; font-weight: 800; color: var(--text-primary); }
-.user-sub { font-size: 12px; color: var(--text-faint); margin-top: 4px; }
+.panel { background: #fff; border: 1px solid #eaeaea; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.panel h3 { font-size: 16px; font-weight: 700; }
+.btn-outline { padding: 8px 14px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; gap: 6px; align-items: center; }
 
-/* 스탯 */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-.stat-card {
-  background: var(--bg-surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 22px 22px 18px; position: relative; overflow: hidden;
-  transition: border-color 0.2s;
-}
-.stat-card:hover { border-color: rgba(129,140,248,0.4); }
-.stat-value { font-size: 32px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
-.stat-label { font-size: 12px; color: var(--text-muted); }
-.stat-badge {
-  position: absolute; top: 16px; right: 16px;
-  width: 32px; height: 32px; border-radius: 8px;
-  background: rgba(129,140,248,0.15);
-  display: flex; align-items: center; justify-content: center;
-  color: #818cf8; font-size: 13px;
-}
+.chart-placeholder { height: 240px; background: #f9f9f9; border: 1px dashed #ddd; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; text-align: center; margin-bottom: 16px; gap: 12px; }
+.chart-placeholder i { font-size: 32px; color: #ccc; }
+.chart-placeholder span { font-size: 11px; color: #aaa; }
+.chart-legend { display: flex; justify-content: center; gap: 24px; font-size: 12px; color: #555; }
+.chart-legend span { display: flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 3px; }
 
-/* 섹션 카드 */
-.section-card {
-  background: var(--bg-surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 22px 24px;
-}
-.section-card-header {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-  font-weight: 700; font-size: 15px; color: var(--text-primary);
-}
-.btn-sm {
-  padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px;
-  background: var(--bg-elevated); color: var(--text-muted); font-size: 12px;
-  cursor: pointer; transition: all 0.15s;
-}
-.btn-sm:hover { background: var(--bg-hover); color: var(--text-primary); }
+.skill-list { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
+.skill-item { display: flex; align-items: center; justify-content: space-between; }
+.skill-info { display: flex; align-items: center; gap: 12px; width: 200px; }
+.skill-icon { width: 40px; height: 40px; background: #f5f5f5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #333; }
+.skill-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.skill-info p { font-size: 11px; color: #888; }
+.skill-bar-wrap { flex: 1; display: flex; align-items: center; gap: 16px; max-width: 300px; }
+.skill-bar { flex: 1; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+.fill { height: 100%; background: #111; border-radius: 3px; }
+.skill-score { font-size: 13px; font-weight: 600; width: 36px; text-align: right; }
 
-.chart-placeholder {
-  height: 180px; background: var(--bg-elevated); border: 1px dashed var(--border-mid);
-  border-radius: 12px; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 6px;
-  color: var(--text-faint); font-size: 20px; margin-bottom: 16px;
-}
-.chart-placeholder span { font-size: 13px; font-weight: 600; }
-.chart-placeholder small { font-size: 11px; }
-
-.chart-legend { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
-.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-muted); }
-.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
-
-/* 스킬 리스트 */
-.skill-list { display: flex; flex-direction: column; gap: 18px; }
-.skill-row { display: flex; align-items: center; gap: 16px; }
-.skill-meta { display: flex; align-items: center; gap: 12px; width: 200px; flex-shrink: 0; }
-.skill-emoji {
-  width: 38px; height: 38px; border-radius: 10px; background: var(--bg-elevated);
-  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
-}
-.skill-name { font-weight: 700; font-size: 13px; color: var(--text-primary); }
-.skill-desc { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
-.skill-bar-wrap { flex: 1; display: flex; align-items: center; gap: 12px; }
-.skill-bar { flex: 1; height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
-.skill-bar-fill {
-  height: 100%; border-radius: 3px;
-  background: linear-gradient(90deg, #818cf8, #38bdf8);
-  transition: width 0.8s ease;
-}
-.skill-pct { font-size: 12px; font-weight: 600; color: var(--text-muted); width: 36px; text-align: right; }
-
-/* 확인 카드 */
-.confirm-card {
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  border-radius: 16px; padding: 36px 24px; text-align: center;
-}
-.confirm-icon {
-  width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 16px;
-  background: rgba(129,140,248,0.15);
-  display: flex; align-items: center; justify-content: center;
-  color: #818cf8; font-size: 18px;
-}
-.confirm-card h3 { font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; }
-.confirm-card p  { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+.confirm-section { background: #fafafa; border: 1px solid #eaeaea; border-radius: 12px; padding: 40px 20px; text-align: center; margin-top: 40px; }
+.confirm-icon { width: 48px; height: 48px; background: #111; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 16px; }
+.confirm-section h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+.confirm-section p { font-size: 13px; color: #666; margin-bottom: 24px; }
 .confirm-actions { display: flex; justify-content: center; gap: 12px; }
-.btn-yes, .btn-no {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.15s; font-family: 'Escoredream', sans-serif;
-}
-.btn-yes { background: linear-gradient(135deg, #818cf8, #38bdf8); color: #fff; border: none; }
-.btn-yes:hover { opacity: 0.87; }
-.btn-no {
-  background: var(--bg-surface); border: 1px solid var(--border);
-  color: var(--text-muted);
-}
-.btn-no:hover { background: var(--bg-hover); color: var(--text-primary); }
+.confirm-actions button { padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: opacity 0.2s; font-family: 'Escoredream', sans-serif; }
+.btn-yes { background: #111; color: #fff; border: none; }
+.btn-no { background: #fff; color: #111; border: 1px solid #ddd; }
+.confirm-actions button:hover { opacity: 0.8; }
 </style>
