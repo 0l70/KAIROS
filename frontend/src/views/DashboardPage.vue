@@ -100,7 +100,7 @@ const skills = [
 </script>
 
 <style scoped>
-.page-root { min-height: 100vh; background: #fafafa; font-family: 'Escoredream', sans-serif; color: #111; padding-bottom: 60px; }
+.page-root { height: 100vh; overflow-y: auto; background: #fafafa; font-family: 'Escoredream', sans-serif; color: #111; padding-bottom: 60px; }
 .page-header { display: flex; justify-content: space-between; padding: 16px 24px; background: #fff; border-bottom: 1px solid #eaeaea; }
 .header-left { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
 .header-right { display: flex; align-items: center; gap: 16px; color: #666; }
