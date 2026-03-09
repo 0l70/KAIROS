@@ -130,7 +130,7 @@
       </Teleport>
 
       <!-- 카테고리 선택 -->
-      <div v-else-if="phase === 'select'" class="select-screen fade-in">
+      <div v-if="phase === 'select'" class="select-screen fade-in">
         <div class="select-inner">
           <h2 class="select-title">어떤 분야를 공부할까요?</h2>
           <p class="select-sub">카테고리를 선택하면 AI가 맞춤 퀴즈를 출제합니다</p>
@@ -176,7 +176,7 @@
       </div>
 
       <!-- 퀴즈 진행 -->
-      <div v-else class="quiz-screen fade-in">
+      <div v-else-if="phase === 'quiz'" class="quiz-screen fade-in">
         <div class="quiz-inner">
           <!-- 진행 표시 -->
           <div class="quiz-progress-bar">

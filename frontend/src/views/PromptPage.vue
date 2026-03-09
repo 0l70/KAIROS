@@ -71,13 +71,15 @@
                 <span class="ptl-head-dot" :style="{ background: track.color }" /> {{ track.name }}
               </span>
             </div>
-            <span class="ptl-count-badge">{{ allPromptSchedules.length }}개</span>
           </div>
 
           <div class="prompt-graph-inner custom-scroll snap-container">
             <div v-if="!allPromptSchedules.length" class="prompt-tl-empty">
-              <i class="fas fa-code-branch" />
-              <p>기록이 없습니다.</p>
+              <div class="empty-icon-wrap">
+                <i class="fas fa-box-open" />
+              </div>
+              <p class="empty-title">선택한 월에 해당하는 기록이 없습니다.</p>
+              <p class="empty-desc">새로운 AI 프롬프트나 블로그 포스팅을<br>진행하면 이곳에 타임라인이 그려집니다.</p>
             </div>
 
             <div v-else class="v-graph-timeline">
@@ -156,6 +158,19 @@
         </div>
       </div>
     </main>
+
+    <Transition name="fade">
+      <div v-if="edgeTooltip.visible" class="edge-tooltip-popup" :style="{ left: edgeTooltip.x + 'px', top: edgeTooltip.y + 'px' }">
+        <div class="et-track" :style="{ color: edgeTooltip.edge.color }">
+          {{ store.getTrackById(edgeTooltip.edge.track)?.name }}
+        </div>
+        <div class="et-nodes">
+          <span>{{ edgeTooltip.edge.from.tooltip?.title || edgeTooltip.edge.from.text || '시작' }}</span>
+          <i class="fas fa-arrow-right" />
+          <span>{{ edgeTooltip.edge.to.tooltip?.title || edgeTooltip.edge.to.text || '종료' }}</span>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -168,10 +183,10 @@ import { useCalendarStore } from '@/stores/useCalendarStore'
 const store = useCalendarStore()
 const { schedules, allTracks } = storeToRefs(store)
 
-// ── 날짜 및 팝오버 로직 ──
 const today = new Date()
 const currentYear = ref(today.getFullYear())
 const currentMonth = ref(today.getMonth() + 1)
+
 const isPopoverOpen = ref(false)
 const dateWrapRef = ref(null)
 const activeSelect = ref(null)
@@ -221,7 +236,6 @@ function navigate(dir) {
   }
 }
 
-// ── 필터 및 타임라인 데이터 ──
 const promptFilter = ref('all')
 const hiddenTracks = ref(new Set())
 
@@ -263,6 +277,27 @@ const groupedPromptSchedules = computed(() => {
   return [...map.entries()].map(([day, schedules]) => ({ day, schedules }))
 })
 
+// ── ★ 엣지 호버: 툴팁 잘림 방지 로직 ★ ──
+const interactionState = ref({ hovered: null, clicked: null })
+const edgeTooltip = ref({ visible: false, x: 0, y: 0, edge: null })
+
+function onEdgeHover(edge, mouseEvent) {
+  if (edge) {
+    interactionState.value.hovered = { type: 'edge', data: edge }
+    if (mouseEvent) {
+      // 툴팁이 오른쪽 창 밖으로 나가지 않도록 Clamp(제한) 계산
+      // 툴팁의 예상 최대 너비의 절반 정도를 여백으로 둡니다 (약 150px)
+      const maxRightX = window.innerWidth - 150; 
+      const safeX = Math.min(mouseEvent.clientX, maxRightX);
+
+      edgeTooltip.value = { visible: true, x: Math.max(safeX, 150), y: mouseEvent.clientY - 30, edge }
+    }
+  } else {
+    if (interactionState.value.hovered?.type === 'edge') interactionState.value.hovered = null;
+    edgeTooltip.value.visible = false;
+  }
+}
+
 // ── 채팅 로직 ──
 const promptInput = ref('')
 const promptMessagesRef = ref(null)
@@ -291,7 +326,7 @@ function sendPrompt() {
 .app-layout { display: flex; width: 100%; height: 100vh; background: var(--bg-base); font-family: 'Escoredream', sans-serif; color: var(--text-primary); }
 .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-/* ── 헤더 (메인 디자인과 완벽 일치) ── */
+/* ── 헤더 (메인 캘린더 디자인 복구) ── */
 .calendar-header {
   height: 64px; border-bottom: 1px solid var(--border); background: var(--bg-surface);
   display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; z-index: 30;
@@ -305,7 +340,7 @@ function sendPrompt() {
 .page-title-label { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
 .page-title-label i { color: var(--accent); }
 
-/* 날짜 팝오버 디자인 */
+/* 날짜 팝오버 */
 .custom-date-popover { position: absolute; top: 100%; left: 0; margin-top: 8px; background: var(--bg-elevated); border: 1px solid var(--border-mid); border-radius: 14px; padding: 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.4); z-index: 100; display: flex; flex-direction: column; gap: 16px; }
 .popover-row { display: flex; gap: 8px; }
 .custom-sel-wrap { position: relative; }
@@ -317,7 +352,6 @@ function sendPrompt() {
 .custom-sel-item.selected { color: var(--accent); font-weight: 700; background: rgba(59,130,246,0.1); }
 .btn-pop-confirm { width: 100%; background: var(--accent); color: #fff; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
 
-/* 네비게이션 버튼 */
 .nav-controls { display: flex; align-items: center; gap: 3px; }
 .nav-btn { width: 30px; height: 30px; border: 1px solid var(--border); background: transparent; border-radius: 7px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; }
 .nav-btn--text { width: auto; padding: 0 10px; font-size: 11px; font-weight: 600; }
@@ -326,30 +360,73 @@ function sendPrompt() {
 .header-right { display: flex; align-items: center; }
 .prompt-filters { display: flex; gap: 4px; background: var(--bg-elevated); padding: 4px; border-radius: 8px; border: 1px solid var(--border); }
 .p-filter-btn { padding: 6px 12px; border: none; border-radius: 6px; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.15s; }
-.p-filter-btn.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.p-filter-btn.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.1); border: 1px solid var(--border-mid); }
 .p-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
 
-/* ── 타임라인 스냅 스크롤 레이아웃 ── */
+/* ── 타임라인 스냅 스크롤 ── */
 .prompt-view-layout { flex: 1; display: flex; overflow: hidden; }
 
-/* ★ 핵심: 하루 단위 스냅 설정 */
-.snap-container {
-  scroll-snap-type: y mandatory;
-  overflow-y: scroll;
-}
-.snap-item-wrap {
-  scroll-snap-align: start; /* 각 날짜 뭉치의 시작점에 스냅 */
-  scroll-margin-top: 12px;
-  border-bottom: 1px solid var(--border-subtle);
-}
+/* ★ 하루 단위 스냅 설정 */
+.snap-container { scroll-snap-type: y mandatory; overflow-y: scroll; }
+.snap-item-wrap { scroll-snap-align: start; scroll-margin-top: 12px; border-bottom: 1px solid var(--border-subtle); }
 
 .prompt-graph-panel { width: 380px; flex-shrink: 0; background: var(--bg-surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-.prompt-graph-title { padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg-elevated); display: flex; justify-content: space-between; }
-.ptl-header-track-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; }
-.ptl-head-dot { width: 7px; height: 7px; border-radius: 50%; }
-.ptl-count-badge { font-size: 10px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); }
+/* ── 타임라인 상단 트랙 타이틀 영역 ── */
+.prompt-graph-title { 
+  padding: 16px 20px; /* 패딩을 키워 전체적으로 더 큼직하게 */
+  border-bottom: 1px solid var(--border); 
+  background: var(--bg-elevated); 
+  display: flex; 
+  align-items: center;
+}
 
-.prompt-graph-inner { flex: 1; min-height: 0; padding-bottom: 150px; }
+/* 뱃지들을 감싸는 컨테이너 (한 줄 유지) */
+.ptl-header-tracks {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* 뱃지 사이 간격 추가 */
+  width: 100%;
+  overflow-x: auto; /* 항목이 많아 넘치면 가로 스크롤 허용 */
+  white-space: nowrap; /* 강제 줄바꿈 방지 */
+  
+  /* 디자인을 위해 스크롤바는 숨김 처리 */
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.ptl-header-tracks::-webkit-scrollbar { 
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* 개별 트랙 뱃지 디자인 개선 */
+.ptl-header-track-badge { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-size: 13px; /* 11px -> 13px로 폰트 크기 증가 */
+  font-weight: 800; 
+  padding: 6px 14px; /* 알약 형태의 여백 추가 */
+  background: var(--bg-base); /* 배경색 분리 */
+  border: 1px solid var(--border-mid); /* 은은한 테두리 */
+  border-radius: 999px; /* 완전 둥글게 */
+  flex-shrink: 0; /* 화면이 좁아져도 뱃지가 찌그러지지 않게 보호 */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+/* 뱃지 앞의 색상 동그라미(Dot) */
+.ptl-head-dot { 
+  width: 9px; /* 7px -> 9px로 크기 증가 */
+  height: 9px; 
+  border-radius: 50%; 
+}
+
+.prompt-graph-inner { flex: 1; min-height: 0; padding-bottom: 10px; }
+
+/* 데이터 없을 때 화면 */
+.prompt-tl-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 400px; text-align: center; margin: 24px; background: var(--bg-elevated); border: 1.5px dashed var(--border-mid); border-radius: 16px; }
+.empty-icon-wrap { width: 64px; height: 64px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.empty-icon-wrap i { font-size: 26px; color: var(--text-faint); }
+.empty-title { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; }
+.empty-desc { font-size: 12px; font-weight: 500; color: var(--text-muted); line-height: 1.6; }
 
 .v-graph-timeline { position: relative; }
 .v-graph-spines-container { position: absolute; top: 0; bottom: 0; left: 69px; display: flex; gap: 8px; opacity: 0.2; }
@@ -376,18 +453,22 @@ function sendPrompt() {
 .v-graph-track-name { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
 .v-graph-title { font-size: 13px; font-weight: 700; margin-top: 4px; line-height: 1.4; }
 
-/* 채팅 패널 */
+/* 오른쪽 채팅 */
 .prompt-chat-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg-base); }
 .prompt-chat-header { padding: 18px 24px; background: var(--bg-surface); border-bottom: 1px solid var(--border); height: 64px; display: flex; align-items: center; }
 .prompt-welcome-info-placeholder { display: flex; align-items: center; gap: 12px; color: var(--text-faint); }
 .prompt-chat-title { font-size: 15px; font-weight: 800; color: var(--text-primary); }
 .prompt-chat-subtitle { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
 
+.prompt-schedule-info { display: flex; align-items: center; gap: 12px; }
+.prompt-schedule-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
+.prompt-welcome-icon-sm { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 15px; color: #fff; opacity: 0.85; }
+
 .prompt-messages-area { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
 .prompt-msg { display: flex; flex-direction: column; gap: 4px; max-width: 80%; }
 .prompt-msg--user { align-self: flex-end; align-items: flex-end; }
 .prompt-msg--ai { align-self: flex-start; }
-.prompt-msg-bubble { padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
+.prompt-msg-bubble { padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 .prompt-msg--user .prompt-msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
 .prompt-msg--ai .prompt-msg-bubble { background: var(--bg-elevated); border: 1px solid var(--border); border-bottom-left-radius: 4px; color: var(--text-primary); }
 .prompt-msg-time { font-size: 9px; color: var(--text-faint); font-family: monospace; }
@@ -400,9 +481,25 @@ function sendPrompt() {
 .custom-scroll::-webkit-scrollbar { width: 6px; }
 .custom-scroll::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 10px; }
 
-/* 애니메이션 */
+/* ★ 툴팁 스타일: 찌그러짐 방지 (min-width, white-space) */
+.edge-tooltip-popup {
+  position: fixed; z-index: 9999; pointer-events: none; background: var(--bg-surface); 
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; 
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 6px; 
+  transform: translate(-50%, -100%); margin-top: -10px;
+  
+  /* 화면 끝에서 텍스트 줄바꿈/찌그러짐 방지 */
+  min-width: max-content;
+  white-space: nowrap;
+}
+.et-track { font-size: 11px; font-weight: 800; font-family: 'Escoredream', sans-serif; }
+.et-nodes { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.et-nodes i { color: var(--text-faint); font-size: 11px; }
+
 .fade-pop-enter-active, .fade-pop-leave-active { transition: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); }
 .fade-pop-enter-from, .fade-pop-leave-to { opacity: 0; transform: translateY(-10px); }
 .drop-anim-enter-active { transition: 0.2s; }
 .drop-anim-enter-from { opacity: 0; transform: translateY(-5px); }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

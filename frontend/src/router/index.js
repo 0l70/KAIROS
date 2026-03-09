@@ -9,7 +9,7 @@ const routes = [
   { path: '/loading', name: 'loading',        component: () => import('@/views/LoadingPage.vue')  },
 
   // ── 분석 플로우 ──────────────────────────
-  { path: '/analysis',           name: 'analysis',           component: () => import('@/views/DashboardPage.vue')        },
+  { path: '/analysis',           name: 'analysis',           component: () => import('@/views/AnalysisPage.vue')        },
   { path: '/feedback',           name: 'feedback',           component: () => import('@/views/FeedbackPage.vue')         },
   { path: '/curriculum-suggest', name: 'curriculum-suggest', component: () => import('@/views/CurriculumSuggestPage.vue') },
   { path: '/activity-select',    name: 'activity-select',    component: () => import('@/views/ActivitySelectPage.vue')   },
@@ -17,7 +17,7 @@ const routes = [
   { path: '/quiz-activity',      name: 'quiz-activity',      component: () => import('@/views/QuizActivityPage.vue')     },
 
   // ── 앱 내부 ─────────────────────────────
-  { path: '/calendar',       name: 'calendar',       component: () => import('@/views/MainPage.vue')            },
+  { path: '/calendar',       name: 'calendar',       component: () => import('@/views/CalendarPage.vue')            },
   { path: '/study-calendar', name: 'study-calendar', component: () => import('@/views/StudyCalendarPage.vue')   },
   
   // ★ 방금 새로 만든 프롬프트 페이지 라우트 추가!
@@ -31,6 +31,8 @@ const routes = [
 
   // fallback
   { path: '/:pathMatch(.*)*', redirect: '/' },
+  // 핑앤퐁~
+  { path : '/test',          name: 'test',            component: () => import('@/views/TestView.vue')   },
 ]
 
 const router = createRouter({

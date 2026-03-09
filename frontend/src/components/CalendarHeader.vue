@@ -213,12 +213,14 @@ onUnmounted(() => {
 
 <style scoped>
 .calendar-header {
+  position: relative; /* ★ 이거 추가! */
+  z-index: 50;        /* ★ z-index를 확실하게 높여줌 */
   height: 64px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-surface);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px;
-  flex-shrink: 0; z-index: 30;
+  flex-shrink: 0; 
   transition: background 0.3s;
   gap: 12px;
 }
