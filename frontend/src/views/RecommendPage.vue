@@ -1,68 +1,71 @@
 <template>
   <div class="app-layout">
     <AppSidebar />
-
-    <main class="main-content">
-      <div class="page-header">
-        <span class="page-title">레퍼런스 추천</span>
-        <div class="header-right">
-          <button class="icon-btn"><i class="fas fa-bell" /></button>
-          <RouterLink to="/mypage" class="avatar-btn">K</RouterLink>
+    <main class="main-content custom-scroll">
+      
+      <header class="page-header">
+        <div>
+          <h1 class="page-title">새로운 활동 추천</h1>
+          <p class="page-desc">KAIROS AI가 학습 패턴을 분석하여 최적의 다음 스텝을 제안합니다.</p>
         </div>
-      </div>
+      </header>
 
-      <div class="rec-body fade-in">
-
-        <div class="section-card">
-          <div class="ai-header">
-            <div class="ai-icon"><i class="fas fa-robot" /></div>
-            <span>AI 학습 어시스턴트</span>
-          </div>
-          <div class="chat-bubbles">
-            <div class="bubble bubble--ai">
-              현재 학습 진행 상황을 분석하고 있습니다...
-              <div class="typing-dots"><span /><span /><span /></div>
-            </div>
-            <div class="bubble bubble--msg">수학 기초 개념에서 약간의 부족함을 발견했습니다.</div>
-            <div class="bubble bubble--msg">개인 맞춤형 학습 경로를 생성하고 있습니다...</div>
-          </div>
-        </div>
-
-        <div class="rec-grid">
-          <div class="section-card">
-            <div class="rec-section-title"><i class="fas fa-graduation-cap" /> 학습 추천</div>
-            <div v-for="c in courses" :key="c.title" class="rec-item">
-              <h4>{{ c.title }}</h4>
-              <p>{{ c.desc }}</p>
-              <div class="rec-item-footer">
-                <span class="rec-time"><i class="fas fa-clock" /> {{ c.time }}</span>
-                <span class="rec-score">추천도 {{ c.score }}%</span>
+      <div class="page-body">
+        
+        <section class="rec-section">
+          <h2 class="section-title">현재 트랙을 위한 다음 스텝</h2>
+          <div class="card-grid">
+            
+            <div class="rec-card">
+              <div class="rc-header">
+                <span class="rc-track" style="color: #607D8B"><i class="fas fa-layer-group"></i> 졸업작품</span>
+                <span class="rc-tag rc-diff">난이도: 중</span>
+              </div>
+              <h3 class="rc-title">JPA 연관관계 매핑 심화 학습</h3>
+              <p class="rc-reason"><strong>추천 이유:</strong> 최근 ERD 설계를 완료하셨습니다. DB 테이블을 객체지향적으로 다루기 위해 JPA 연관관계 학습이 필수적입니다.</p>
+              <div class="rc-footer">
+                <span class="rc-time"><i class="fas fa-clock"></i> 예상 3시간</span>
+                <button class="btn-add"><i class="fas fa-plus"></i> 캘린더 추가</button>
               </div>
             </div>
-          </div>
-          <div class="section-card">
-            <div class="rec-section-title"><i class="fas fa-book-open" /> 레퍼런스 추천</div>
-            <div v-for="r in references" :key="r.title" class="rec-item">
-              <h4>{{ r.title }}</h4>
-              <p>{{ r.desc }}</p>
-              <div class="rec-item-footer">
-                <span class="ref-type"><i :class="r.icon" /> {{ r.type }}</span>
+
+            <div class="rec-card">
+              <div class="rc-header">
+                <span class="rc-track" style="color: #8B9A73"><i class="fas fa-layer-group"></i> 알고리즘</span>
+                <span class="rc-tag rc-diff">난이도: 상</span>
+              </div>
+              <h3 class="rc-title">A* 알고리즘 기초 문제 3선</h3>
+              <p class="rc-reason"><strong>추천 이유:</strong> 다익스트라 알고리즘을 성공적으로 학습했습니다. 심화 응용인 A* 알고리즘을 통해 탐색 능력을 넓힐 수 있습니다.</p>
+              <div class="rc-footer">
+                <span class="rc-time"><i class="fas fa-clock"></i> 예상 4시간</span>
+                <button class="btn-add"><i class="fas fa-plus"></i> 캘린더 추가</button>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div class="action-row">
-          <button class="btn-action btn-action--primary">
-            <i class="fas fa-graduation-cap" /> 학습 추천
-          </button>
-          <button class="btn-action btn-action--secondary">
-            <i class="fas fa-book-open" /> 레퍼런스 추천
-          </button>
-          <button class="btn-action btn-action--secondary">
-            <i class="fas fa-plus" /> 새로운 공부 시작
-          </button>
-        </div>
+          </div>
+        </section>
+
+        <section class="rec-section mt-40">
+          <h2 class="section-title">이런 새로운 학습은 어떠세요?</h2>
+          <div class="card-grid">
+            
+            <div class="rec-card highlight-card">
+              <div class="rc-header">
+                <span class="rc-track text-accent"><i class="fas fa-lightbulb"></i> NEW 트랙 제안</span>
+                <span class="rc-tag rc-type">인프라/DevOps</span>
+              </div>
+              <h3 class="rc-title">Docker & Github Actions 기초</h3>
+              <p class="rc-desc">졸업작품 배포 시기가 다가옵니다. 수동 배포 대신 CI/CD 파이프라인을 구축해 개발 효율을 높여보세요.</p>
+              <div class="rc-tags">
+                <span>#DevOps</span> <span>#자동화</span> <span>#AWS</span>
+              </div>
+              <div class="rc-footer mt-auto">
+                <button class="btn-primary w-full">이 트랙으로 시작하기</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
 
       </div>
     </main>
@@ -71,89 +74,48 @@
 
 <script setup>
 import AppSidebar from '@/components/AppSidebar.vue'
-
-// ── 추천 데이터 ──
-const courses = [
-  { title: '기초 대수학',    desc: '현재 진도에 맞는 기초 개념 강화', time: '2시간',   score: 95 },
-  { title: '문제 해결 전략', desc: '체계적인 문제 접근법 학습',        time: '1.5시간', score: 88 },
-]
-const references = [
-  { title: 'Khan Academy - 대수학', desc: '기초부터 차근차근 설명하는 영상 강의', type: '영상 자료', icon: 'fas fa-play-circle' },
-  { title: '수학의 정석 기초편',   desc: '체계적인 문제 풀이와 개념 정리',       type: '교재',    icon: 'fas fa-book' },
-]
 </script>
 
 <style scoped>
-.app-layout {
-  display: flex; width: 100%; height: 100vh; overflow: hidden;
-  background: var(--bg-base); color: var(--text-primary);
-  font-family: 'Escoredream', system-ui, sans-serif;
-}
-.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.app-layout { display: flex; width: 100%; height: 100vh; overflow: hidden; background: var(--bg-base); }
+.main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg-base); }
 
-.page-header {
-  height: 64px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 28px; flex-shrink: 0;
-}
-.page-title { font-weight: 700; font-size: 15px; color: var(--text-primary); }
-.header-right { display: flex; align-items: center; gap: 14px; }
-.icon-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 16px; }
-.avatar-btn {
-  width: 32px; height: 32px; border-radius: 50%; text-decoration: none;
-  background: linear-gradient(135deg, #818cf8, #38bdf8);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; color: #fff; font-weight: 700;
-}
+.page-header { padding: 32px 40px; border-bottom: 1px solid var(--border); background: var(--bg-surface); position: sticky; top: 0; z-index: 10; }
+.page-title { font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+.page-desc { font-size: 13px; color: var(--text-faint); }
 
-.rec-body {
-  flex: 1; overflow-y: auto; padding: 28px 32px;
-  display: flex; flex-direction: column; gap: 20px;
-  scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent;
-}
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-.fade-in { animation: fadeIn 0.35s ease both; }
+.page-body { padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 40px; }
 
-.section-card {
-  background: var(--bg-surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 22px 24px;
-}
+.section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 20px; }
 
-/* AI 헤더 */
-.ai-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; font-weight: 700; font-size: 14px; color: var(--text-primary); }
-.ai-icon { width: 32px; height: 32px; border-radius: 9px; background: rgba(129,140,248,0.15); color: #818cf8; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
 
-/* 버블 */
-.chat-bubbles { display: flex; flex-direction: column; gap: 10px; }
-.bubble { display: inline-block; padding: 12px 16px; border-radius: 12px; font-size: 13px; color: var(--text-secondary); max-width: 80%; line-height: 1.55; }
-.bubble--ai { background: var(--bg-elevated); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-.bubble--msg { background: var(--bg-surface); border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-.typing-dots { display: flex; gap: 4px; margin-top: 8px; }
-.typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); }
-.typing-dots span:nth-child(1) { animation: bounce 1.2s infinite; }
-.typing-dots span:nth-child(2) { animation: bounce 1.2s infinite 0.15s; }
-.typing-dots span:nth-child(3) { animation: bounce 1.2s infinite 0.3s; }
-@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+.rec-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
+.rec-card:hover { border-color: var(--border-mid); transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.05); }
 
-/* 추천 그리드 */
-.rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-.rec-section-title { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 14px; color: var(--text-primary); margin-bottom: 16px; }
-.rec-section-title i { color: #818cf8; }
-.rec-item { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; cursor: pointer; transition: all 0.15s; }
-.rec-item:last-child { margin-bottom: 0; }
-.rec-item:hover { background: var(--bg-hover); border-color: rgba(129,140,248,0.3); }
-.rec-item h4 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
-.rec-item p  { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; }
-.rec-item-footer { display: flex; justify-content: space-between; align-items: center; }
-.rec-time { font-size: 11px; color: var(--text-faint); display: flex; align-items: center; gap: 5px; }
-.rec-score { font-size: 11px; font-weight: 700; background: rgba(129,140,248,0.15); color: #818cf8; padding: 3px 9px; border-radius: 6px; }
-.ref-type { font-size: 11px; color: var(--text-faint); display: flex; align-items: center; gap: 5px; }
+.rc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.rc-track { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.rc-tag { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--bg-base); color: var(--text-muted); }
+.text-accent { color: var(--text-primary); }
 
-/* 액션 버튼 */
-.action-row { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn-action { flex: 1; min-width: 140px; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; font-family: 'Escoredream', sans-serif; }
-.btn-action--primary { background: linear-gradient(135deg, #818cf8, #38bdf8); color: #fff; border: none; }
-.btn-action--primary:hover { opacity: 0.87; }
-.btn-action--secondary { background: var(--bg-surface); border: 1px solid var(--border); color: var(--text-muted); }
-.btn-action--secondary:hover { background: var(--bg-hover); color: var(--text-primary); }
+.rc-title { font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; line-height: 1.4; }
+.rc-reason { font-size: 13px; color: var(--text-secondary); line-height: 1.6; background: rgba(17, 24, 39, 0.03); padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+.rc-reason strong { color: var(--text-primary); font-weight: 700; }
+.rc-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+
+.rc-tags { display: flex; gap: 8px; margin-bottom: 24px; }
+.rc-tags span { font-size: 11px; color: var(--text-muted); background: var(--bg-base); padding: 4px 8px; border-radius: 4px; }
+
+.rc-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.mt-auto { margin-top: auto; }
+.rc-time { font-size: 12px; font-weight: 600; color: var(--text-faint); display: flex; align-items: center; gap: 4px; }
+
+.btn-add { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.15s; display: flex; align-items: center; gap: 6px; }
+.btn-add:hover { background: var(--bg-hover); border-color: var(--border-mid); }
+
+.btn-primary { background: var(--accent); color: var(--bg-surface); border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.15s; text-align: center; }
+.btn-primary:hover { opacity: 0.9; }
+.w-full { width: 100%; }
+
+.highlight-card { border: 2px solid var(--text-primary); }
 </style>

@@ -1,20 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
+
 :root {
-  color: #f6f7fb;
-  background: linear-gradient(160deg, #07213b 0%, #0b2a4a 38%, #111827 100%);
-  font-family: "Space Grotesk", "Pretendard", "Noto Sans KR", sans-serif;
+  /* 세련된 모노크롬 라이트 테마 */
+  --bg-base: #f3f4f6;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-hover: #e5e7eb;
+  
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+  
+  --border: #e5e7eb;
+  --border-mid: #d1d5db;
+  
+  /* 포인트 컬러를 다크 그레이/블랙으로 변경 */
+  --accent: #111827; 
+  --accent-glow: rgba(17, 24, 39, 0.15);
+  
+  --sat-color: #4b5563; /* 토요일도 차분한 그레이 */
+  --sun-color: #111827; /* 일요일은 다크/진한 포인트 */
+  --today-bg: rgba(17, 24, 39, 0.03);
+
+  --sidebar-w: 240px;
+  --header-h: 60px;
+  
+  --modal-bg: #ffffff;
+  --modal-border: #e5e7eb;
+  --modal-input-bg: #f9fafb;
+  --modal-input-focus-bg: #ffffff;
+  --modal-divider: #f3f4f6;
+  --modal-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
-* {
-  box-sizing: border-box;
+.theme-dark {
+  /* 세련된 모노크롬 다크 테마 */
+  --bg-base: #0a0a0a;
+  --bg-surface: #121212;
+  --bg-elevated: #1a1a1a;
+  --bg-hover: #262626;
+  
+  --text-primary: #f9fafb;
+  --text-secondary: #e5e7eb;
+  --text-muted: #9ca3af;
+  --text-faint: #6b7280;
+  
+  --border: #262626;
+  --border-mid: #333333;
+  
+  /* 다크모드 포인트 컬러: 화이트/라이트 그레이 */
+  --accent: #f9fafb;
+  --accent-glow: rgba(255, 255, 255, 0.15);
+  
+  --sat-color: #9ca3af;
+  --sun-color: #e5e7eb;
+  --today-bg: rgba(255, 255, 255, 0.04);
+
+  --modal-bg: #171717;
+  --modal-border: #262626;
+  --modal-input-bg: #0a0a0a;
+  --modal-input-focus-bg: #171717;
+  --modal-divider: #262626;
+  --modal-shadow: 0 20px 40px rgba(0,0,0,0.5);
 }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  margin: 0;
-  min-height: 100vh;
+  font-family: 'SUIT Variable', 'Inter', sans-serif;
+  background: var(--bg-base); color: var(--text-primary);
+  overflow: hidden;
 }
 
-button,
-input,
-textarea {
-  font: inherit;
-}
+/* 스크롤바 모노크롬 */
+.custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 10px; }
+.custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }

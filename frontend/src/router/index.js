@@ -17,10 +17,13 @@ const routes = [
   { path: '/quiz-activity',      name: 'quiz-activity',      component: () => import('@/views/QuizActivityPage.vue')     },
 
   // ── 앱 내부 ─────────────────────────────
+  // ★ 대시보드 추가
+  { path: '/dashboard',      name: 'dashboard',      component: () => import('@/views/DashboardPage.vue')        },
+  
   { path: '/calendar',       name: 'calendar',       component: () => import('@/views/CalendarPage.vue')            },
   { path: '/study-calendar', name: 'study-calendar', component: () => import('@/views/StudyCalendarPage.vue')   },
   
-  // ★ 방금 새로 만든 프롬프트 페이지 라우트 추가!
+  // ★ 프롬프트 페이지
   { path: '/prompt',         name: 'prompt',         component: () => import('@/views/PromptPage.vue')          },
 
   { path: '/recommend',      name: 'recommend',      component: () => import('@/views/RecommendPage.vue')       },
