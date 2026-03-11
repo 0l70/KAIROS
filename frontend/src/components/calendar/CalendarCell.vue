@@ -1,148 +1,110 @@
 <template>
   <div
-    :id="`day-${dateStr}`"
-    class="calendar-cell"
-    :class="{
-      'cell--today':         isToday,
-      'cell--selected':      isSelected,
-      'cell--sat':           dayOfWeek === 6,
-      'cell--sun':           dayOfWeek === 0,
-      'cell--holiday':       isHoliday,
-      'cell--other-month':   !isCurrentMonth,
-    }"
-    @click.stop="handleCellClick"
-    @dblclick.stop="$emit('day-detail', dateStr)"
+    class="calendar-cell retro-cell"
+    :class="{ 'is-today': isToday, 'is-other-month': !isCurrentMonth, 'is-selected': isSelected }"
+    @click="$emit('cell-click', dateStr)"
   >
     <div class="cell-header">
-      <div class="cell-header-left">
-        <span class="date-label-wrapper" :class="{ 'wrapper--today': isToday }">
-          <span class="date-label" :class="{ 'date--today': isToday, 'date--holiday': isHoliday }">{{ dayNum }}</span>
-          <span v-if="isToday" class="today-tag">TODAY</span>
-        </span>
-        <span v-if="holidayName" class="holiday-name">{{ holidayName }}</span>
-      </div>
-
-      <button
-        v-if="isCurrentMonth"
-        class="btn-add-schedule"
-        @click.stop="$emit('add-schedule', dateStr)"
-      ><i class="fas fa-plus" /></button>
+      <span class="cell-date" :class="{ 'text-accent-1': isToday }">{{ dayNum }}</span>
+      <button class="mech-key-small btn-add-schedule" @click.stop="$emit('add-schedule', dateStr)">
+        <i class="fas fa-plus"></i>
+      </button>
     </div>
-
-    <Transition name="chips-fade">
-      <div v-if="labelSchedules.length && isAllTracksHidden" class="label-cluster">
-        <div
-          v-for="s in labelSchedules" :key="s.id"
-          class="schedule-label-chip"
-          :style="{ color: trackColor(s.track), borderColor: trackColor(s.track)+'50', background: trackColor(s.track)+'18' }"
-          @click.stop="$emit('toggle-tooltip', s.id)"
-          @mouseenter="$emit('hover-node', s)"
-          @mouseleave="$emit('hover-node', null)"
-        >{{ s.text }}</div>
+    
+    <div class="cell-body custom-scroll">
+      <CalendarNode
+        v-for="s in visibleSchedules"
+        :key="s.id"
+        :schedule="s"
+        :is-dimmed="dimmedNodeIds.has(s.id)"
+        :active-tooltip-id="activeTooltipId"
+        @toggle-tooltip="$emit('toggle-tooltip', $event)"
+        @edit-schedule="$emit('edit-schedule', $event)"
+        @delete-schedule="$emit('delete-schedule', $event)"
+        @hover-node="$emit('hover-node', $event)"
+      />
+      <div
+        v-if="hiddenCount > 0"
+        class="more-badge retro-badge"
+        @click.stop="$emit('day-detail', dateStr)"
+      >
+        +{{ hiddenCount }} MORE
       </div>
-    </Transition>
-
-    <CalendarNode
-      v-for="s in schedules" :key="s.id"
-      v-show="!hiddenTracks || !hiddenTracks.has(s.track)"
-      :schedule="s"
-      :is-active="activeTooltipId === s.id"
-      :is-dimmed="dimmedNodeIds?.has(s.id)"
-      @toggle-tooltip="$emit('toggle-tooltip', s.id)"
-      @edit="$emit('edit-schedule', $event)"
-      @delete="$emit('delete-schedule', $event)"
-      @hover="$emit('hover-node', $event)"
-    />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { useCalendarStore } from '@/stores/useCalendarStore'
 import CalendarNode from './CalendarNode.vue'
 
 const props = defineProps({
-  dateStr:         { type: String,  required: true },
-  currentMonth:    { type: Number,  required: true },
-  schedules:       { type: Array,   default: () => [] },
-  activeTooltipId: { type: String,  default: null },
-  isToday:         { type: Boolean, default: false },
-  isSelected:      { type: Boolean, default: false },
-  hiddenTracks:    { type: Object,  default: () => new Set() },
-  dimmedNodeIds:   { type: Object,  default: () => new Set() },
+  dateStr: String,
+  currentMonth: Number,
+  schedules: Array,
+  activeTooltipId: String,
+  isToday: Boolean,
+  isSelected: Boolean,
+  hiddenTracks: Object,
+  dimmedNodeIds: Object,
 })
+defineEmits(['cell-click', 'add-schedule', 'toggle-tooltip', 'edit-schedule', 'delete-schedule', 'day-detail', 'hover-node'])
 
-const emit = defineEmits(['cell-click', 'add-schedule', 'toggle-tooltip', 'edit-schedule', 'delete-schedule', 'day-detail', 'hover-node'])
+const dayNum = computed(() => parseInt(props.dateStr.split('-')[2], 10))
+const isCurrentMonth = computed(() => { const [, m] = props.dateStr.split('-').map(Number); return m === props.currentMonth })
 
-const store = useCalendarStore()
-
-const parsed = computed(() => { const [y, m, d] = props.dateStr.split('-').map(Number); return { y, m, d, date: new Date(y, m-1, d) } })
-const dayNum         = computed(() => parsed.value.d)
-const dayOfWeek      = computed(() => parsed.value.date.getDay())
-const isCurrentMonth = computed(() => parsed.value.m === props.currentMonth)
-const labelSchedules = computed(() => props.schedules.filter(s => s.text))
-
-const holidayName = computed(() => store.getHoliday(props.dateStr))
-const isHoliday = computed(() => !!holidayName.value)
-
-function trackColor(id) { return store.getTrackById(id)?.color || '#6b7280' }
-function handleCellClick() { emit('toggle-tooltip', null); emit('cell-click', props.dateStr) }
-
-const totalTrackCount = computed(() => {
-  const list = store.allTracks || []
-  let count = list.length
-  if (!list.some(t => t.id === 'hl_prompt' || t.name?.includes('프롬프트'))) count++
-  if (!list.some(t => t.id === 'hl_blog' || t.name?.includes('블로그'))) count++
-  return count
-})
-const isAllTracksHidden = computed(() => totalTrackCount.value > 0 && props.hiddenTracks.size >= totalTrackCount.value)
+const filteredSchedules = computed(() => props.schedules.filter(s => !props.hiddenTracks.has(s.track)))
+const MAX_VISIBLE = 3
+const visibleSchedules = computed(() => filteredSchedules.value.slice(0, MAX_VISIBLE))
+const hiddenCount = computed(() => Math.max(0, filteredSchedules.value.length - MAX_VISIBLE))
 </script>
 
 <style scoped>
-.calendar-cell {
-  position: relative; border-bottom: 1px solid var(--border); border-right:  1px solid var(--border);
-  display: flex; flex-direction: column; padding: 8px 8px 8px; background: var(--bg-surface);
-  transition: background 0.15s; cursor: pointer; overflow: visible;
+@font-face { font-family: 'NeoDunggeunmo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmoPro-Regular.woff2') format('woff2'); font-weight: normal; font-display: swap; }
+
+/* 💡 브루탈리즘 달력 셀 */
+.retro-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border-right: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  padding: 8px;
+  min-height: var(--month-row-height, 150px);
+  transition: filter 0.1s ease;
+  cursor: pointer;
 }
-.calendar-cell:hover { background: var(--bg-elevated); }
-.calendar-cell:hover .btn-add-schedule { opacity: 1; }
+.retro-cell:hover { filter: brightness(0.95); }
 
-.cell--today { background: rgba(168, 85, 247, 0.04) !important; }
-.wrapper--today { display: flex; align-items: center; gap: 6px; }
-.date--today { color: #fff !important; background: linear-gradient(135deg, #a855f7, #7e22ce); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-weight: 800 !important; box-shadow: 0 2px 6px rgba(126, 34, 206, 0.25); }
-.today-tag { font-size: 8px; font-weight: 800; color: #9333ea; background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.25); border-radius: 4px; padding: 2px 5px; letter-spacing: 0.05em; }
+/* 셀 우측/하단 테두리 제거 (달력 껍데기에서 처리함) */
+.retro-cell:nth-child(7n) { border-right: none; }
+.retro-cell:nth-last-child(-n+7) { border-bottom: none; }
 
-.cell--selected { background: rgba(59,130,246,0.07) !important; outline: 2px solid var(--accent); outline-offset: -2px; }
-.cell--selected .date-label:not(.date--today) { color: var(--accent) !important; font-weight: 800 !important; }
+.is-other-month .cell-date { color: var(--text-faint) !important; opacity: 0.5; }
+.is-selected { background: var(--bg-elevated); outline: 4px solid var(--accent); outline-offset: -4px; z-index: 2; }
+.is-selected .cell-date { color: var(--accent); }
+.is-today { background: var(--today-bg); }
 
-/* ★ 토/일요일 색상 적용 시, 공휴일 클래스(.date--holiday)가 없을 때만 적용되도록 변경 */
-.cell--sat .date-label:not(.date--holiday) { color: var(--sat-color) !important; font-weight: 700; }
-.cell--sun .date-label:not(.date--holiday) { color: var(--sun-color) !important; font-weight: 700; }
+.cell-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.cell-date { font-size: 16px; font-weight: 800; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-primary); padding: 4px; }
+.text-accent-1 { color: var(--accent); }
+.is-today .cell-date { background: var(--accent); color: #fff; border: 2px solid var(--border); border-radius: 4px; box-shadow: 2px 2px 0 var(--border); }
 
-/* ★ 공휴일은 무조건 빨간색 적용 */
-.date--holiday { color: #ef4444 !important; font-weight: 800 !important; }
-.holiday-name { font-size: 10px; font-weight: 700; color: #ef4444; font-family: 'Escoredream', sans-serif; letter-spacing: -0.04em; margin-top: 1px; }
+/* 추가 버튼 */
+.btn-add-schedule { opacity: 0; }
+.retro-cell:hover .btn-add-schedule { opacity: 1; }
+.mech-key-small { padding: 4px 8px; background: var(--bg-elevated); color: var(--text-primary); border: 2px solid var(--border); border-radius: 4px; box-shadow: 2px 2px 0 var(--border); cursor: pointer; transition: 0.1s; }
+.mech-key-small:active { transform: translate(2px, 2px); box-shadow: 0 0 0 transparent; }
 
-.cell--other-month { background: color-mix(in srgb, var(--bg-base) 60%, var(--bg-surface)) !important; cursor: default; }
-.cell--other-month:hover { background: color-mix(in srgb, var(--bg-base) 60%, var(--bg-surface)) !important; }
-.cell--other-month .date-label { color: var(--text-faint) !important; font-weight: 400; }
-.cell--other-month .date--holiday { color: rgba(239, 68, 68, 0.45) !important; }
-.cell--other-month .holiday-name { color: rgba(239, 68, 68, 0.45); }
-.cell--other-month .btn-add-schedule { display: none; }
+.cell-body { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overflow-x: hidden; }
+.more-badge { font-size: 10px; text-align: center; cursor: pointer; transition: 0.1s; margin-top: 2px; }
+.more-badge:hover { color: var(--accent); border-color: var(--accent); transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--accent); }
+.retro-badge { border: 2px solid var(--border); background: var(--bg-elevated); padding: 2px 6px; border-radius: 4px; font-family: 'NeoDunggeunmo', sans-serif; font-weight: 800; box-shadow: 2px 2px 0 var(--border); }
 
-.cell-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; flex-shrink: 0; z-index: 20; position: relative; }
-.cell-header-left { display: flex; align-items: baseline; gap: 6px; }
+/* 반짝임 이펙트 */
+@keyframes targetFlash { 0% { background-color: var(--today-bg); box-shadow: inset 0 0 0 4px var(--accent); } 100% { background-color: transparent; box-shadow: inset 0 0 0 0px transparent; } }
+:deep(.flash-target) { animation: targetFlash 1.2s ease-out; }
 
-.date-label { font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: 'Escoredream', sans-serif; line-height: 1; min-width: 22px; text-align: center; }
-
-.btn-add-schedule { width: 18px; height: 18px; border-radius: 4px; background: var(--bg-hover); color: var(--text-muted); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 8px; opacity: 0; transition: all 0.15s; }
-.btn-add-schedule:hover { background: var(--accent); color: #fff; }
-
-.label-cluster { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; margin-bottom: 4px; z-index: 25; position: relative; flex-shrink: 0; }
-.schedule-label-chip { font-size: 10px; font-weight: 600; padding: 4px 8px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; white-space: nowrap; font-family: 'Escoredream', sans-serif; width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; text-align: left; transition: transform 0.15s ease, opacity 0.15s ease; transform-origin: center; }
-.schedule-label-chip:hover { opacity: 0.9; transform: scale(1.02); }
-
-.chips-fade-enter-active { transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.chips-fade-leave-active { transition: all 0.15s ease; }
-.chips-fade-enter-from, .chips-fade-leave-to { opacity: 0; transform: translateY(-8px); }
+.custom-scroll::-webkit-scrollbar { display: none; }
 </style>

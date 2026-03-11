@@ -1,46 +1,49 @@
 <template>
-  <div class="mypage-layout">
+  <div class="mypage-layout" :class="themeStore.isDark ? 'theme-dark' : 'theme-light'">
+    <div class="crt-scanlines"></div>
+    <div class="retro-dot-bg"></div>
+
     <AppSidebar />
 
-    <main class="mypage-main">
-      <!-- 헤더 -->
+    <main class="mypage-main custom-scroll">
       <div class="mypage-header">
-        <button class="btn-back" @click="router.back()">
-          <i class="fas fa-arrow-left" />
+        <button class="mech-key btn-back" @click="router.back()">
+          <span class="key-legend"><i class="fas fa-arrow-left" /></span>
         </button>
         <div class="mypage-header-title">
-          <h1 class="page-title">마이페이지</h1>
-          <p class="page-sub">프로필과 AI 설정을 관리하세요</p>
+          <h1 class="page-title retro-text-hover">MY_PAGE</h1>
+          <p class="page-sub">시스템 프로필 및 AI 멘토 설정 관리</p>
         </div>
       </div>
 
       <div class="mypage-content">
 
-        <!-- ── A. 기본 정보 관리 ─────────────────────────── -->
-        <section class="card">
+        <section class="card retro-panel">
           <div class="card-header">
-            <div class="card-icon" style="background: rgba(99,102,241,0.15); color:#818cf8">
+            <div class="card-icon" style="background: var(--k-acc-2-bg); color: #fff;">
               <i class="fas fa-user" />
             </div>
             <div>
-              <h2 class="card-title">기본 정보</h2>
-              <p class="card-sub">닉네임을 수정할 수 있습니다</p>
+              <h2 class="card-title">USER PROFILE</h2>
+              <p class="card-sub">현재 접속 중인 닉네임 변경</p>
             </div>
           </div>
           <div class="card-body">
             <div class="field-group">
-              <label class="field-label">닉네임</label>
+              <label class="field-label">NICKNAME</label>
               <div class="input-row">
                 <input
                   v-model="nickname"
                   type="text"
-                  class="field-input"
+                  class="terminal-input"
                   placeholder="닉네임을 입력하세요"
                   maxlength="20"
                 />
-                <button class="btn-save" @click="saveNickname" :class="{ 'btn-saved': nicknameSaved }">
-                  <i :class="nicknameSaved ? 'fas fa-check' : 'fas fa-save'" />
-                  {{ nicknameSaved ? '저장됨' : '저장' }}
+                <button class="mech-key btn-save" @click="saveNickname" :class="{ 'key-accent-3': nicknameSaved }">
+                  <span class="key-legend">
+                    <i :class="nicknameSaved ? 'fas fa-check' : 'fas fa-save'" />
+                    {{ nicknameSaved ? 'SAVED' : 'SAVE' }}
+                  </span>
                 </button>
               </div>
               <p class="field-hint">최대 20자 · 현재 {{ nickname.length }}자</p>
@@ -48,101 +51,98 @@
           </div>
         </section>
 
-        <!-- ── B. GitHub 연동 관리 ──────────────────────── -->
-        <section class="card">
+        <section class="card retro-panel">
           <div class="card-header">
-            <div class="card-icon" style="background: rgba(15,23,42,0.5); color:#e2e8f0">
+            <div class="card-icon" style="background: #24292e; color:#fff">
               <i class="fab fa-github" />
             </div>
             <div>
-              <h2 class="card-title">GitHub 연동</h2>
-              <p class="card-sub">커밋 기록과 학습 일정을 연동합니다</p>
+              <h2 class="card-title">GITHUB SYNC</h2>
+              <p class="card-sub">커밋 기록 자동 수집 설정</p>
             </div>
           </div>
           <div class="card-body">
             <div class="github-status-row">
               <div class="github-info">
-                <span class="status-badge" :class="github.connected ? 'badge--connected' : 'badge--disconnected'">
+                <span class="status-badge retro-badge" :class="github.connected ? 'badge--connected' : 'badge--disconnected'">
                   <span class="status-dot" />
-                  {{ github.connected ? '연동됨' : '미연동' }}
+                  {{ github.connected ? 'CONNECTED' : 'DISCONNECTED' }}
                 </span>
                 <span v-if="github.connected" class="github-username">
                   <i class="fab fa-github" /> {{ github.username }}
                 </span>
               </div>
               <button
-                class="btn-github"
-                :class="github.connected ? 'btn-github--disconnect' : 'btn-github--connect'"
+                class="mech-key btn-github"
+                :class="github.connected ? '' : 'key-accent-1'"
                 @click="toggleGithub"
               >
-                <i :class="github.connected ? 'fas fa-unlink' : 'fas fa-link'" />
-                {{ github.connected ? '연동 해제' : 'GitHub 연동하기' }}
+                <span class="key-legend">
+                  <i :class="github.connected ? 'fas fa-unlink' : 'fas fa-link'" />
+                  {{ github.connected ? 'DISCONNECT' : 'LINK GITHUB' }}
+                </span>
               </button>
             </div>
-            <div v-if="github.connected" class="github-stats">
+            <div v-if="github.connected" class="github-stats terminal-bg">
               <div class="github-stat">
                 <span class="stat-num">{{ github.repos }}</span>
-                <span class="stat-label">레포지토리</span>
+                <span class="stat-label">REPOSITORIES</span>
               </div>
               <div class="github-stat">
                 <span class="stat-num">{{ github.commits }}</span>
-                <span class="stat-label">이번 달 커밋</span>
+                <span class="stat-label">MTH COMMITS</span>
               </div>
               <div class="github-stat">
-                <span class="stat-num">{{ github.streak }}일</span>
-                <span class="stat-label">연속 커밋</span>
+                <span class="stat-num text-accent-1">{{ github.streak }}</span>
+                <span class="stat-label">DAY STREAK</span>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- ── C. 기술 스택 관리 ────────────────────────── -->
-        <section class="card">
+        <section class="card retro-panel">
           <div class="card-header">
-            <div class="card-icon" style="background: rgba(16,185,129,0.15); color:#10b981">
+            <div class="card-icon" style="background: var(--k-acc-3-bg); color:#fff">
               <i class="fas fa-code" />
             </div>
             <div>
-              <h2 class="card-title">기술 스택</h2>
-              <p class="card-sub">보유한 기술을 등록하세요</p>
+              <h2 class="card-title">TECH STACK</h2>
+              <p class="card-sub">보유한 기술 스택 등록</p>
             </div>
           </div>
           <div class="card-body">
-            <!-- 검색/추가 입력 -->
             <div class="stack-input-row">
               <div class="stack-input-wrap">
-                <i class="fas fa-search stack-search-icon" />
+                <i class="fas fa-terminal stack-search-icon" />
                 <input
                   v-model="stackInput"
                   type="text"
-                  class="field-input stack-input"
-                  placeholder="기술 입력 후 Enter (예: Vue, Spring, Python...)"
+                  class="terminal-input stack-input"
+                  placeholder="ex) Vue, Spring, Python..."
                   @keydown.enter.prevent="addStack"
                 />
               </div>
-              <button class="btn-add-stack" @click="addStack">
-                <i class="fas fa-plus" /> 추가
+              <button class="mech-key key-accent-2" @click="addStack">
+                <span class="key-legend"><i class="fas fa-plus" /> ADD</span>
               </button>
             </div>
 
-            <!-- 추천 태그 -->
             <div class="stack-suggestions">
-              <span class="suggest-label">빠른 추가:</span>
+              <span class="suggest-label">QUICK ADD:</span>
               <button
                 v-for="s in filteredSuggestions"
                 :key="s"
-                class="suggest-chip"
+                class="suggest-chip mech-key-small"
                 @click="addStackDirect(s)"
               >+ {{ s }}</button>
             </div>
 
-            <!-- 등록된 스택 -->
             <div v-if="techStack.length" class="stack-pills">
               <div
                 v-for="tech in techStack"
                 :key="tech.name"
-                class="stack-pill"
-                :style="{ background: tech.color + '22', borderColor: tech.color + '55', color: tech.color }"
+                class="stack-pill retro-badge"
+                :style="{ background: tech.color + '22', borderColor: tech.color, color: tech.color }"
               >
                 <span class="pill-icon">{{ tech.icon }}</span>
                 <span>{{ tech.name }}</span>
@@ -151,53 +151,57 @@
                 </button>
               </div>
             </div>
-            <p v-else class="stack-empty">아직 등록된 기술 스택이 없습니다</p>
+            <p v-else class="stack-empty">> NOT FOUND. 데이터를 입력하십시오.</p>
           </div>
         </section>
 
-        <!-- ── D. AI 멘토 페르소나 ──────────────────────── -->
-        <section class="card card--persona">
+        <section class="card retro-panel card--persona">
           <div class="card-header">
-            <div class="card-icon" style="background: rgba(245,158,11,0.15); color:#f59e0b">
-              <i class="fas fa-robot" />
+            <div class="card-icon" style="background: var(--k-acc-1-bg); color:#fff">
+              <i class="fas fa-robot pulse-anim" />
             </div>
             <div>
-              <h2 class="card-title">AI 멘토 페르소나</h2>
-              <p class="card-sub">AI 에이전트가 참고하는 나의 목표와 스타일</p>
+              <h2 class="card-title">AI PERSONA</h2>
+              <p class="card-sub">AI 어시스턴트의 응답 스타일 및 목표 설정</p>
             </div>
-            <span class="md-badge"><i class="fab fa-markdown" /> Markdown 지원</span>
+            <span class="md-badge retro-badge"><i class="fab fa-markdown" /> MD_SUPPORT</span>
           </div>
           <div class="card-body">
-            <div class="persona-editor-wrap">
-              <div class="persona-toolbar">
+            <div class="persona-editor-wrap retro-panel" style="box-shadow: none;">
+              <div class="persona-toolbar terminal-bg">
                 <button class="toolbar-btn" @click="insertMd('**', '**')"><b>B</b></button>
                 <button class="toolbar-btn" @click="insertMd('*', '*')"><i>I</i></button>
                 <button class="toolbar-btn" @click="insertMd('\n## ', '')">H</button>
                 <button class="toolbar-btn" @click="insertMd('\n- ', '')"><i class="fas fa-list-ul" /></button>
                 <button class="toolbar-btn" @click="insertMd('`', '`')"><i class="fas fa-code" /></button>
                 <div class="toolbar-sep" />
-                <span class="char-count">{{ persona.length }}자</span>
+                <span class="char-count">{{ persona.length }} BYTE</span>
               </div>
               <textarea
                 ref="personaRef"
                 v-model="persona"
-                class="persona-textarea"
-                rows="10"
-                placeholder="예: AutoInCar 프로젝트의 SW/AI 리드 역할을 맡고 있으며, 컴퓨터 비전(OpenCV)과 AI 모델 최적화에 관심이 많습니다. 블로그 작성 시 전문적이고 간결한 어조를 선호합니다."
+                class="persona-textarea terminal-input"
+                style="border:none; box-shadow:inset 0 4px 8px rgba(0,0,0,0.5); border-radius:0;"
+                rows="8"
+                placeholder="> AI 에이전트의 성격, 개발 목표, 선호하는 어조를 입력하세요..."
               />
             </div>
             <div class="persona-actions">
-              <button class="btn-preview" @click="showPreview = !showPreview">
-                <i :class="showPreview ? 'fas fa-edit' : 'fas fa-eye'" />
-                {{ showPreview ? '편집' : '미리보기' }}
+              <button class="mech-key btn-preview" @click="showPreview = !showPreview">
+                <span class="key-legend">
+                  <i :class="showPreview ? 'fas fa-edit' : 'fas fa-eye'" />
+                  {{ showPreview ? 'EDIT' : 'PREVIEW' }}
+                </span>
               </button>
-              <button class="btn-save btn-save--persona" @click="savePersona" :class="{ 'btn-saved': personaSaved }">
-                <i :class="personaSaved ? 'fas fa-check' : 'fas fa-save'" />
-                {{ personaSaved ? '저장됨' : 'AI에 적용' }}
+              <button class="mech-key key-accent-1" @click="savePersona">
+                <span class="key-legend">
+                  <i :class="personaSaved ? 'fas fa-check' : 'fas fa-upload'" />
+                  {{ personaSaved ? 'SAVED' : 'APPLY TO AI' }}
+                </span>
               </button>
             </div>
-            <!-- 마크다운 미리보기 (간단) -->
-            <div v-if="showPreview && persona" class="persona-preview" v-html="renderMarkdown(persona)" />
+            
+            <div v-if="showPreview && persona" class="persona-preview terminal-bg" v-html="renderMarkdown(persona)" />
           </div>
         </section>
 
@@ -207,13 +211,18 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
+import { useThemeStore } from '@/stores/useThemeStore'
 
 const router = useRouter()
+const themeStore = useThemeStore()
 
-// ── A. 기본 정보 ────────────────────────────────────────────
+onMounted(() => {
+  if (themeStore.isDark) themeStore.isDark = false;
+})
+
 const nickname     = ref('김싸피')
 const nicknameSaved = ref(false)
 function saveNickname() {
@@ -222,60 +231,29 @@ function saveNickname() {
   setTimeout(() => { nicknameSaved.value = false }, 2000)
 }
 
-// ── B. GitHub 연동 ──────────────────────────────────────────
-const github = ref({
-  connected: true,
-  username: 'kimssafy',
-  repos: 24,
-  commits: 87,
-  streak: 12
-})
-function toggleGithub() {
-  github.value.connected = !github.value.connected
-}
+const github = ref({ connected: true, username: 'kimssafy', repos: 24, commits: 87, streak: 12 })
+function toggleGithub() { github.value.connected = !github.value.connected }
 
-// ── C. 기술 스택 ────────────────────────────────────────────
 const TECH_META = {
-  'Vue':        { color: '#42d392', icon: '💚' },
-  'React':      { color: '#61dafb', icon: '⚛️' },
-  'Spring':     { color: '#6db33f', icon: '🍃' },
-  'Python':     { color: '#3776ab', icon: '🐍' },
-  'TypeScript': { color: '#3178c6', icon: '🔷' },
-  'Java':       { color: '#ed8b00', icon: '☕' },
-  'Node.js':    { color: '#339933', icon: '🟢' },
-  'MySQL':      { color: '#4479a1', icon: '🗄️' },
-  'Docker':     { color: '#2496ed', icon: '🐳' },
-  'Kubernetes': { color: '#326ce5', icon: '⚙️' },
-  'AWS':        { color: '#ff9900', icon: '☁️' },
-  'Git':        { color: '#f05032', icon: '🌿' },
-  'C++':        { color: '#00599c', icon: '⚡' },
-  'FastAPI':    { color: '#009688', icon: '🚀' },
-  'Redis':      { color: '#dc382d', icon: '🔴' },
+  'Vue': { color: '#42d392', icon: '💚' }, 'React': { color: '#61dafb', icon: '⚛️' }, 'Spring': { color: '#6db33f', icon: '🍃' },
+  'Python': { color: '#3776ab', icon: '🐍' }, 'TypeScript': { color: '#3178c6', icon: '🔷' }, 'Java': { color: '#ed8b00', icon: '☕' },
+  'Node.js': { color: '#339933', icon: '🟢' }, 'MySQL': { color: '#4479a1', icon: '🗄️' }, 'Docker': { color: '#2496ed', icon: '🐳' },
 }
 const SUGGESTIONS = Object.keys(TECH_META)
 
-const techStack = ref([
-  { name: 'Vue',    ...TECH_META['Vue'] },
-  { name: 'Python', ...TECH_META['Python'] },
-  { name: 'Spring', ...TECH_META['Spring'] },
-])
+const techStack = ref([ { name: 'Vue', ...TECH_META['Vue'] }, { name: 'Python', ...TECH_META['Python'] }, { name: 'Spring', ...TECH_META['Spring'] } ])
 const stackInput = ref('')
 
 const filteredSuggestions = computed(() => {
   const added = new Set(techStack.value.map(t => t.name))
   const q = stackInput.value.toLowerCase()
-  return SUGGESTIONS
-    .filter(s => !added.has(s) && (q === '' || s.toLowerCase().includes(q)))
-    .slice(0, 6)
+  return SUGGESTIONS.filter(s => !added.has(s) && (q === '' || s.toLowerCase().includes(q))).slice(0, 5)
 })
 
 function addStack() {
   const name = stackInput.value.trim()
   if (!name) return
-  if (techStack.value.some(t => t.name.toLowerCase() === name.toLowerCase())) {
-    stackInput.value = ''
-    return
-  }
+  if (techStack.value.some(t => t.name.toLowerCase() === name.toLowerCase())) { stackInput.value = ''; return }
   const meta = TECH_META[name] || { color: '#6b7280', icon: '🔧' }
   techStack.value.push({ name, ...meta })
   stackInput.value = ''
@@ -287,11 +265,8 @@ function addStackDirect(name) {
   techStack.value.push({ name, ...meta })
 }
 
-function removeStack(name) {
-  techStack.value = techStack.value.filter(t => t.name !== name)
-}
+function removeStack(name) { techStack.value = techStack.value.filter(t => t.name !== name) }
 
-// ── D. AI 페르소나 ───────────────────────────────────────────
 const persona     = ref('')
 const personaSaved = ref(false)
 const showPreview  = ref(false)
@@ -311,295 +286,123 @@ function savePersona() {
   setTimeout(() => { personaSaved.value = false }, 2000)
 }
 
-// 간단 마크다운 렌더링
 function renderMarkdown(text) {
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^# (.+)$/gm,  '<h1>$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,     '<em>$1</em>')
-    .replace(/`(.+?)`/g,       '<code>$1</code>')
-    .replace(/^- (.+)$/gm,     '<li>$1</li>')
-    .replace(/\n/g, '<br>')
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>').replace(/^### (.+)$/gm, '<h3>$1</h3>').replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>').replace(/\n/g, '<br>')
 }
-
-import { nextTick } from 'vue'
 </script>
 
 <style scoped>
-/* ── 레이아웃 ──────────────────────────────────────────────── */
-.mypage-layout {
-  display: flex; width: 100%; height: 100vh; overflow: hidden;
-  background: var(--bg-base); color: var(--text-primary);
-  font-family: 'Escoredream', system-ui, sans-serif;
-}
-.mypage-main {
-  flex: 1; display: flex; flex-direction: column;
-  overflow-y: auto; overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) transparent;
-}
+@font-face { font-family: 'Mulmaru'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-4@1.1/Mulmaru.woff2') format('woff2'); font-weight: normal; font-display: swap; }
+@font-face { font-family: 'NeoDunggeunmo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmoPro-Regular.woff2') format('woff2'); font-weight: normal; font-display: swap; }
 
-/* ── 헤더 ──────────────────────────────────────────────────── */
-.mypage-header {
-  display: flex; align-items: center; gap: 16px;
-  padding: 24px 32px 0;
-  flex-shrink: 0;
-}
-.btn-back {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  color: var(--text-muted); font-size: 14px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; flex-shrink: 0;
-}
-.btn-back:hover { background: var(--bg-hover); color: var(--text-primary); }
-.page-title {
-  font-size: 22px; font-weight: 800;
-  font-family: 'Escoredream', sans-serif;
-  color: var(--text-primary); line-height: 1.2;
-}
-.page-sub { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+/* ── 테마 변수 (명도 대비 극대화) ── */
+.theme-light { --k-bg: #F4F0EB; --k-housing: #E6DFD3; --k-key-bg: #FFFFFF; --k-key-border: #1A1A1A; --k-key-shadow: #1A1A1A; --k-border-main: #1A1A1A; --bg-base: #F4F0EB; --bg-surface: #E6DFD3; --bg-elevated: #FFFFFF; --border: #1A1A1A; --border-mid: #1A1A1A; --text-primary: #1A1A1A; --text-secondary: #333333; --text-muted: #555555; --text-faint: #777777; --accent: #E53935; --k-acc-1-bg: #E53935; --k-acc-1-shadow: #B71C1C; --k-acc-2-bg: #1E88E5; --k-acc-2-shadow: #1565C0; --k-acc-3-bg: #43A047; --k-acc-3-shadow: #2E7D32; }
+.theme-dark { --k-bg: #1A1A1A; --k-housing: #2C2C2C; --k-key-bg: #3D3D3D; --k-key-border: #000000; --k-key-shadow: #000000; --k-border-main: #000000; --bg-base: #1A1A1A; --bg-surface: #2C2C2C; --bg-elevated: #3D3D3D; --border: #000000; --border-mid: #000000; --text-primary: #F0F0F0; --text-secondary: #CCCCCC; --text-muted: #999999; --text-faint: #666666; --accent: #FF5252; --k-acc-1-bg: #FF5252; --k-acc-1-shadow: #D50000; --k-acc-2-bg: #448AFF; --k-acc-2-shadow: #2962FF; --k-acc-3-bg: #69F0AE; --k-acc-3-shadow: #00E676; }
 
-/* ── 콘텐츠 그리드 ─────────────────────────────────────────── */
-.mypage-content {
-  padding: 24px 32px 40px;
-  display: flex; flex-direction: column; gap: 20px;
-}
+/* ── 레이아웃 및 배경 ── */
+.mypage-layout { display: flex; width: 100%; height: 100vh; overflow: hidden; background: var(--bg-base); color: var(--text-primary); font-family: 'Mulmaru', sans-serif; position: relative; }
+.mypage-main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; z-index: 10; }
 
-/* ── 카드 공통 ─────────────────────────────────────────────── */
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  transition: border-color 0.15s;
-}
-.card:hover { border-color: var(--border-mid); }
-.card--persona { }
+.crt-scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%); background-size: 100% 4px; z-index: 9999; pointer-events: none; opacity: 0.15; }
+.theme-dark .crt-scanlines { opacity: 0.3; }
+.retro-dot-bg { position: absolute; inset: 0; background-image: radial-gradient(var(--border-mid) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.1; z-index: 0; pointer-events: none; }
 
-.card-header {
-  display: flex; align-items: center; gap: 14px;
-  padding: 18px 22px 14px;
-  border-bottom: 1px solid var(--border);
-}
-.card-icon {
-  width: 38px; height: 38px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
-}
-.card-title {
-  font-size: 15px; font-weight: 700;
-  font-family: 'Escoredream', sans-serif;
-  color: var(--text-primary);
-}
-.card-sub {
-  font-size: 11px; color: var(--text-faint); margin-top: 2px;
-}
-.card-body { padding: 18px 22px 20px; }
+/* ── UI 요소 ── */
+.retro-panel { background: var(--bg-surface); border: 2px solid var(--border); box-shadow: 4px 4px 0 var(--border); border-radius: 6px; }
+.terminal-input { width: 100%; background: var(--k-key-shadow); color: var(--k-acc-3-bg); border: 2px solid var(--border); border-radius: 4px; box-shadow: inset 0 4px 8px rgba(0,0,0,0.4); padding: 12px 16px; font-family: 'NeoDunggeunmo', monospace; font-size: 16px; outline: none; transition: border-color 0.2s;}
+.terminal-input:focus { border-color: var(--accent); color: var(--text-primary); }
+.terminal-input::placeholder { color: var(--text-faint); font-family: 'Mulmaru', sans-serif; font-size: 14px; }
+.terminal-bg { background: var(--bg-elevated); border: 2px solid var(--border); border-radius: 4px; padding: 12px; }
+.retro-badge { border: 2px solid var(--border); box-shadow: 2px 2px 0 var(--border); border-radius: 4px; padding: 4px 8px; font-family: 'NeoDunggeunmo', sans-serif; }
 
-/* ── A. 기본 정보 ──────────────────────────────────────────── */
-.field-group { display: flex; flex-direction: column; gap: 8px; }
-.field-label {
-  font-size: 12px; font-weight: 700; color: var(--text-muted);
-  letter-spacing: 0.04em;
-}
-.input-row { display: flex; gap: 10px; align-items: center; }
-.field-input {
-  flex: 1; background: var(--bg-elevated);
-  border: 1px solid var(--border); border-radius: 9px;
-  color: var(--text-primary); font-size: 14px;
-  font-family: 'Escoredream', sans-serif;
-  padding: 10px 14px; outline: none;
-  transition: border-color 0.15s;
-}
-.field-input:focus { border-color: var(--accent); }
-.field-input::placeholder { color: var(--text-faint); }
-.field-hint { font-size: 11px; color: var(--text-faint); }
+.mech-key { padding: 10px 20px; background: var(--bg-elevated); color: var(--text-primary); border: 2px solid var(--border); border-radius: 4px; box-shadow: 4px 4px 0 var(--border); cursor: pointer; transition: all 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.mech-key:active { transform: translate(4px, 4px); box-shadow: 0 0 0 transparent; }
+.mech-key-small { padding: 6px 12px; background: var(--bg-elevated); color: var(--text-primary); border: 2px solid var(--border); border-radius: 4px; box-shadow: 2px 2px 0 var(--border); cursor: pointer; font-family: 'NeoDunggeunmo', sans-serif; font-size: 12px; transition: 0.1s; }
+.mech-key-small:active { transform: translate(2px, 2px); box-shadow: 0 0 0 transparent; }
 
-.btn-save {
-  display: flex; align-items: center; gap: 6px;
-  padding: 9px 18px; border: none; border-radius: 9px;
-  background: var(--accent); color: #fff;
-  font-size: 13px; font-weight: 700;
-  font-family: 'Escoredream', sans-serif;
-  cursor: pointer; transition: all 0.18s; white-space: nowrap;
-  flex-shrink: 0;
-}
-.btn-save:hover { opacity: 0.85; }
-.btn-save.btn-saved { background: #10b981; }
+.key-legend { font-size: 14px; font-weight: 800; font-family: 'NeoDunggeunmo', sans-serif; display: flex; align-items: center; gap: 8px; }
+.key-accent-1 { background: var(--k-acc-1-bg); color: #fff; border-color: var(--border); }
+.key-accent-2 { background: var(--k-acc-2-bg); color: #fff; border-color: var(--border); }
+.key-accent-3 { background: var(--k-acc-3-bg); color: #fff; border-color: var(--border); }
 
-/* ── B. GitHub ──────────────────────────────────────────────── */
-.github-status-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  flex-wrap: wrap;
-}
+/* 직관적인 레트로 텍스트 호버 (글리치 대체) */
+.retro-text-hover { transition: transform 0.1s, text-shadow 0.1s; display: inline-block; }
+.retro-text-hover:hover { transform: translate(-2px, -2px); text-shadow: 3px 3px 0px var(--accent); color: var(--text-primary); cursor: pointer; }
+
+/* ── 헤더 ── */
+.mypage-header { display: flex; align-items: center; gap: 20px; padding: 32px 40px 0; flex-shrink: 0; }
+.btn-back { padding: 0; width: 44px; height: 44px; border-radius: 6px; }
+.page-title { font-size: 32px; font-weight: 900; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-primary); margin-bottom: 4px; }
+.page-sub { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+
+/* ── 본문 ── */
+.mypage-content { padding: 32px 40px 40px; display: flex; flex-direction: column; gap: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+
+.card-header { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 2px dashed var(--border); background: var(--bg-elevated); }
+.card-icon { width: 44px; height: 44px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.2); }
+.card-title { font-size: 18px; font-weight: 900; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-primary); margin-bottom: 4px; }
+.card-sub { font-size: 13px; color: var(--text-faint); }
+.card-body { padding: 24px; }
+
+/* A. 닉네임 */
+.field-group { display: flex; flex-direction: column; gap: 10px; }
+.field-label { font-size: 14px; font-weight: 800; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-primary); }
+.input-row { display: flex; gap: 12px; align-items: center; }
+.field-hint { font-size: 12px; color: var(--text-faint); font-family: 'NeoDunggeunmo', sans-serif; }
+.btn-save { height: 50px; }
+
+/* B. GitHub */
+.github-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .github-info { display: flex; align-items: center; gap: 12px; }
-.status-badge {
-  display: flex; align-items: center; gap: 6px;
-  padding: 5px 12px; border-radius: 999px;
-  font-size: 12px; font-weight: 700;
-  font-family: 'Escoredream', sans-serif;
-}
-.badge--connected   { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
-.badge--disconnected{ background: rgba(107,114,128,0.15); color: #6b7280; border: 1px solid rgba(107,114,128,0.3); }
-.status-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: currentColor;
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-.github-username {
-  font-size: 13px; color: var(--text-muted);
-  font-family: monospace;
-}
-.btn-github {
-  display: flex; align-items: center; gap: 7px;
-  padding: 9px 18px; border-radius: 9px;
-  font-size: 13px; font-weight: 700; cursor: pointer;
-  font-family: 'Escoredream', sans-serif; transition: all 0.15s;
-  border: none;
-}
-.btn-github--connect    { background: #24292e; color: #fff; }
-.btn-github--connect:hover { background: #1a1f24; }
-.btn-github--disconnect { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-.btn-github--disconnect:hover { background: rgba(239,68,68,0.2); }
+.status-badge { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; }
+.badge--connected { background: var(--k-acc-3-bg); color: #fff; }
+.badge--disconnected { background: var(--bg-elevated); color: var(--text-muted); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; border: 1px solid var(--border); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.github-username { font-size: 16px; font-weight: 800; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-primary); }
+.btn-github { height: 44px; }
 
-.github-stats {
-  display: flex; gap: 0; margin-top: 16px;
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  border-radius: 10px; overflow: hidden;
-}
-.github-stat {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  padding: 12px 16px; border-right: 1px solid var(--border);
-}
+.github-stats { display: flex; gap: 0; margin-top: 20px; }
+.github-stat { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 16px; border-right: 2px dashed var(--border); }
 .github-stat:last-child { border-right: none; }
-.stat-num {
-  font-size: 20px; font-weight: 800;
-  font-family: 'Escoredream', sans-serif; color: var(--text-primary);
-}
-.stat-label { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+.stat-num { font-size: 28px; font-weight: 900; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-primary); }
+.stat-label { font-size: 12px; font-weight: 800; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-muted); margin-top: 4px; }
 
-/* ── C. 기술 스택 ──────────────────────────────────────────── */
-.stack-input-row { display: flex; gap: 10px; align-items: center; }
+/* C. 스택 */
+.stack-input-row { display: flex; gap: 12px; align-items: center; }
 .stack-input-wrap { flex: 1; position: relative; }
-.stack-search-icon {
-  position: absolute; left: 12px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-faint); font-size: 12px; pointer-events: none;
-}
-.stack-input { padding-left: 34px !important; }
-.btn-add-stack {
-  display: flex; align-items: center; gap: 6px;
-  padding: 9px 16px; border: none; border-radius: 9px;
-  background: rgba(59,130,246,0.15); color: #60a5fa;
-  font-size: 13px; font-weight: 700; cursor: pointer;
-  font-family: 'Escoredream', sans-serif; transition: all 0.15s;
-  border: 1px solid rgba(59,130,246,0.3); white-space: nowrap;
-}
-.btn-add-stack:hover { background: rgba(59,130,246,0.25); }
+.stack-search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-faint); font-size: 14px; }
+.stack-input { padding-left: 40px !important; }
 
-.stack-suggestions {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 7px;
-  margin-top: 10px;
-}
-.suggest-label { font-size: 11px; color: var(--text-faint); flex-shrink: 0; }
-.suggest-chip {
-  padding: 4px 10px; border: 1px dashed var(--border-mid);
-  background: none; color: var(--text-muted); border-radius: 6px;
-  font-size: 11px; cursor: pointer; transition: all 0.15s;
-  font-family: 'Escoredream', sans-serif;
-}
-.suggest-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(59,130,246,0.08); }
+.stack-suggestions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.suggest-label { font-size: 12px; font-weight: 800; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-muted); }
 
-.stack-pills {
-  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;
-}
-.stack-pill {
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 10px 6px 8px;
-  border: 1px solid; border-radius: 8px;
-  font-size: 12px; font-weight: 700;
-  font-family: 'Escoredream', sans-serif;
-  transition: opacity 0.15s;
-}
-.pill-icon { font-size: 14px; }
-.pill-remove {
-  background: none; border: none; cursor: pointer;
-  color: currentColor; opacity: 0.5; padding: 0 0 0 4px;
-  font-size: 10px; transition: opacity 0.15s; line-height: 1;
-}
-.pill-remove:hover { opacity: 1; }
-.stack-empty { font-size: 13px; color: var(--text-faint); margin-top: 12px; }
+.stack-pills { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.stack-pill { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; }
+.pill-remove { background: none; border: none; cursor: pointer; color: currentColor; opacity: 0.5; padding: 0; font-size: 12px; transition: 0.1s; }
+.pill-remove:hover { opacity: 1; transform: scale(1.2); }
+.stack-empty { font-size: 14px; font-family: 'NeoDunggeunmo', sans-serif; color: var(--k-acc-1-bg); margin-top: 16px; }
 
-/* ── D. AI 페르소나 ─────────────────────────────────────────── */
-.md-badge {
-  margin-left: auto; display: flex; align-items: center; gap: 5px;
-  padding: 4px 10px; border-radius: 6px;
-  background: rgba(245,158,11,0.1); color: #f59e0b;
-  font-size: 11px; font-weight: 600; border: 1px solid rgba(245,158,11,0.25);
-}
-.persona-editor-wrap {
-  background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px;
-  overflow: hidden;
-}
-.persona-toolbar {
-  display: flex; align-items: center; gap: 4px;
-  padding: 8px 12px; border-bottom: 1px solid var(--border);
-  background: var(--bg-surface);
-}
-.toolbar-btn {
-  width: 28px; height: 28px; border-radius: 6px;
-  background: none; border: none; color: var(--text-muted);
-  cursor: pointer; font-size: 13px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-}
-.toolbar-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-.toolbar-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
-.char-count { font-size: 10px; color: var(--text-faint); margin-left: auto; font-family: monospace; }
-.persona-textarea {
-  width: 100%; background: transparent;
-  border: none; outline: none; resize: none;
-  color: var(--text-primary); font-size: 13px;
-  font-family: 'Escoredream', monospace, sans-serif;
-  padding: 14px 16px; line-height: 1.8;
-  box-sizing: border-box;
-}
-.persona-textarea::placeholder { color: var(--text-faint); }
-.persona-actions {
-  display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px;
-}
-.btn-preview {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border: 1px solid var(--border);
-  background: var(--bg-elevated); color: var(--text-muted);
-  border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
-  transition: all 0.15s; font-family: 'Escoredream', sans-serif;
-}
-.btn-preview:hover { background: var(--bg-hover); color: var(--text-primary); }
-.btn-save--persona { padding: 8px 20px; }
+/* D. 페르소나 */
+.md-badge { margin-left: auto; display: flex; align-items: center; gap: 6px; background: var(--bg-elevated); color: var(--text-primary); font-size: 12px; }
+.persona-toolbar { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-bottom: 2px solid var(--border); }
+.toolbar-btn { width: 32px; height: 32px; border-radius: 4px; background: var(--bg-base); border: 2px solid var(--border); color: var(--text-primary); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 0 var(--border); transition: 0.1s; }
+.toolbar-btn:active { transform: translate(2px,2px); box-shadow: 0 0 0 transparent; }
+.toolbar-sep { width: 2px; height: 20px; background: var(--border-mid); margin: 0 8px; }
+.char-count { font-size: 12px; font-weight: 800; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-muted); margin-left: auto; }
+.persona-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px; }
 
-.persona-preview {
-  margin-top: 14px; padding: 16px;
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  border-radius: 10px; line-height: 1.8;
-  font-size: 13px; color: var(--text-secondary);
-}
-.persona-preview :deep(h1) { font-size: 18px; font-weight: 800; margin: 8px 0 4px; color: var(--text-primary); }
-.persona-preview :deep(h2) { font-size: 15px; font-weight: 700; margin: 6px 0 3px; color: var(--text-primary); }
-.persona-preview :deep(h3) { font-size: 13px; font-weight: 700; margin: 4px 0 2px; }
-.persona-preview :deep(strong) { color: var(--text-primary); font-weight: 700; }
-.persona-preview :deep(em) { font-style: italic; opacity: 0.85; }
-.persona-preview :deep(code) {
-  background: var(--bg-surface); padding: 1px 6px;
-  border-radius: 4px; font-family: monospace; font-size: 12px;
-}
-.persona-preview :deep(li) { margin-left: 16px; list-style: disc; }
+.persona-preview { margin-top: 20px; line-height: 1.8; font-size: 14px; color: var(--text-primary); font-family: 'Mulmaru', sans-serif; }
+.persona-preview :deep(h1) { font-size: 20px; font-weight: 900; margin: 12px 0 6px; }
+.persona-preview :deep(h2) { font-size: 18px; font-weight: 800; margin: 10px 0 4px; }
+.persona-preview :deep(strong) { font-weight: 900; color: var(--accent); }
+.persona-preview :deep(code) { background: var(--bg-base); padding: 2px 6px; border: 1px solid var(--border); border-radius: 4px; font-family: monospace; }
+.persona-preview :deep(li) { margin-left: 20px; list-style: square; }
+
+.custom-scroll::-webkit-scrollbar { width: 8px; }
+.custom-scroll::-webkit-scrollbar-track { background: var(--bg-base); border-left: 2px solid var(--border); }
+.custom-scroll::-webkit-scrollbar-thumb { background: var(--border-mid); border: 2px solid var(--border); }
 </style>

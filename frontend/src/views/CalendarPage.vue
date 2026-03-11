@@ -1,5 +1,9 @@
 <template>
-  <div class="app-layout" @click="handleBackdropClick">
+  <div class="app-layout" @click="handleBackdropClick" :class="themeStore.isDark ? 'theme-dark' : 'theme-light'">
+    
+    <div class="crt-scanlines"></div>
+    <div class="retro-dot-bg"></div>
+
     <AppSidebar />
 
     <main class="main-content">
@@ -17,7 +21,7 @@
       />
 
       <div v-if="currentView === 'month'" class="calendar-area">
-        <div ref="calendarWrapper" class="calendar-wrapper">
+        <div ref="calendarWrapper" class="calendar-wrapper retro-panel">
           <div class="calendar-header-row grid-cols-7 month-dow-header">
             <div v-for="(d, i) in DAY_LABELS" :key="d" class="day-header"
               :class="{ 'day-header--sat': i===6, 'day-header--sun': i===0 }">
@@ -52,16 +56,16 @@
         </div>
 
         <Transition name="floatbar">
-          <div v-if="selectedSchedules.length" class="floating-action-bar">
-            <span class="sel-count">{{ selectedSchedules.length }}개 선택됨</span>
-            <button class="btn-sel-delete" @click="deleteSelected"><i class="fas fa-trash" /> 삭제</button>
-            <button class="btn-sel-clear" @click="selectedSchedules = []"><i class="fas fa-times" /></button>
+          <div v-if="selectedSchedules.length" class="floating-action-bar retro-modal">
+            <span class="sel-count">{{ selectedSchedules.length }} SELECT</span>
+            <button class="btn-sel-delete mech-key key-accent-1" @click="deleteSelected"><i class="fas fa-trash" /> DEL</button>
+            <button class="btn-sel-clear mech-key" @click="selectedSchedules = []"><i class="fas fa-times" /> CANCEL</button>
           </div>
         </Transition>
       </div>
 
       <div v-else-if="currentView === 'week'" class="calendar-area">
-        <div ref="calendarWrapper" class="week-wrapper custom-scroll"
+        <div ref="calendarWrapper" class="week-wrapper custom-scroll retro-panel"
           @wheel.passive="onWeekWheel"
           @touchstart.passive="onWeekTouchStart"
           @touchend.passive="onWeekTouchEnd">
@@ -71,9 +75,9 @@
               class="week-col-header"
               :class="{ 'day-header--sat': idx===6, 'day-header--sun': idx===0 }">
               <span class="week-col-label">{{ DAY_LABELS[idx] }}</span>
-              <span class="week-col-date" :class="{ 'is-today': day === todayStr }">
+              <span class="week-col-date" :class="{ 'is-today text-accent-1': day === todayStr }">
                 {{ dateOf(day) }}
-                <span v-if="day === todayStr" class="week-today-tag">TODAY</span>
+                <span v-if="day === todayStr" class="week-today-tag retro-badge">TODAY</span>
               </span>
             </div>
           </div>
@@ -87,23 +91,16 @@
               v-for="(track, tIdx) in sortedAllTracks"
               :key="`lane-bg-${track.id}`"
               class="week-lane-bg"
-              :style="{
-                top: getWeekLaneY(track.id) + 'px',
-                background: track.color + (track.isHighlight ? '22' : '14')
-              }"
+              :style="{ top: getWeekLaneY(track.id) + 'px' }"
             />
 
             <div class="week-lane-labels">
               <div
                 v-for="(track, tIdx) in sortedAllTracks"
                 :key="track.id"
-                class="week-lane-label"
+                class="week-lane-label retro-badge"
                 :class="{ 'week-lane-label--highlight': track.isHighlight }"
-                :style="{
-                  top: getWeekLaneY(track.id) + 'px',
-                  color: track.color,
-                  borderColor: track.color + '44'
-                }"
+                :style="{ top: getWeekLaneY(track.id) + 'px', color: track.color, borderColor: track.color }"
                 @mouseenter="onTrackHover(track.id)"
                 @mouseleave="onTrackHover(null)"
               >
@@ -152,7 +149,7 @@
                   @mouseleave="onNodeHover(null)"
                 />
               </div>
-              <button class="btn-add-week" @click.stop="openCreateModal(day)">
+              <button class="btn-add-week mech-key" @click.stop="openCreateModal(day)">
                 <i class="fas fa-plus" />
               </button>
             </div>
@@ -164,7 +161,7 @@
     <Transition name="fade">
       <div 
         v-if="edgeTooltip.visible" 
-        class="edge-tooltip-popup" 
+        class="edge-tooltip-popup retro-modal" 
         :style="{ left: edgeTooltip.x + 'px', top: (edgeTooltip.baseY - currentScrollY) + 'px', transform: `translate(${edgeTooltip.translateX}, -100%)` }"
       >
         <div class="et-track" :style="{ color: edgeTooltip.edge.color }">{{ store.getTrackById(edgeTooltip.edge.track)?.name }}</div>
@@ -179,17 +176,17 @@
     <Transition name="pop-remote">
       <div 
         v-if="edgeRemote.visible" 
-        class="edge-remote-modal" 
+        class="edge-remote-modal retro-modal" 
         :style="{ left: edgeRemote.x + 'px', top: (edgeRemote.baseY - currentScrollY) + 'px' }"
       >
         <div class="er-header">
           <span class="er-track-name" :style="{ color: edgeRemote.edge.color }">
-            {{ store.getTrackById(edgeRemote.edge.track)?.name }} 연결선
+            [ LINK : {{ store.getTrackById(edgeRemote.edge.track)?.name }} ]
           </span>
-          <button class="er-close" @click.stop="closeRemote"><i class="fas fa-times"/></button>
+          <button class="er-close mech-key" style="padding: 2px 6px;" @click.stop="closeRemote"><i class="fas fa-times"/></button>
         </div>
         <div class="er-body">
-          <div class="er-node" @click.stop="jumpToNode(edgeRemote.edge.from)">
+          <div class="er-node retro-btn" @click.stop="jumpToNode(edgeRemote.edge.from)">
             <div class="er-node-color" :style="{ background: store.getTrackById(edgeRemote.edge.from.track)?.color }"></div>
             <div class="er-node-info">
               <div class="er-node-day">{{ formatNodeDate(edgeRemote.edge.from.day) }}</div>
@@ -197,7 +194,7 @@
             </div>
           </div>
           <div class="er-arrow"><i class="fas fa-link"/></div>
-          <div class="er-node" @click.stop="jumpToNode(edgeRemote.edge.to)">
+          <div class="er-node retro-btn" @click.stop="jumpToNode(edgeRemote.edge.to)">
             <div class="er-node-color" :style="{ background: store.getTrackById(edgeRemote.edge.to.track)?.color }"></div>
             <div class="er-node-info">
               <div class="er-node-day">{{ formatNodeDate(edgeRemote.edge.to.day) }}</div>
@@ -218,6 +215,7 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCalendarStore } from '@/stores/useCalendarStore'
+import { useThemeStore } from '@/stores/useThemeStore'
 import { useCanvasLines, WEEK_LANE_SPACING, WEEK_TOP_MARGIN } from '@/composables/useCanvasLines'
 
 import AppSidebar        from '@/components/AppSidebar.vue'
@@ -229,8 +227,9 @@ import DayDetailModal    from '@/components/calendar/DayDetailModal.vue'
 import NodeFormModal     from '@/components/modal/NodeFormModal.vue'
 import BranchManageModal from '@/components/modal/BranchManageModal.vue'
 
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
+const DAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] 
 const store = useCalendarStore()
+const themeStore = useThemeStore()
 const { schedules, connections, allTracks } = storeToRefs(store)
 
 const today = new Date()
@@ -288,7 +287,6 @@ function onEdgeClick(edge, e) {
     interactionState.value.clicked = { type: 'edge', data: edge }
     activeTooltipId.value = null
     edgeTooltip.value.visible = false 
-
     if (e) {
       const w = window.innerWidth; const h = window.innerHeight;
       let x = e.clientX + 15; let y = e.clientY + 15;
@@ -320,13 +318,8 @@ function jumpToNode(node) {
   }
 }
 
-// ★ 트랙 이름 띄어쓰기 기준 첫 단어만 노출
-function getShortTrackName(name) {
-  if (!name) return '';
-  return name.trim().split(' ')[0];
-}
-
-function formatNodeDate(dateStr) { const [y, m, d] = dateStr.split('-').map(Number); return `${m}월 ${d}일`; }
+function getShortTrackName(name) { if (!name) return ''; return name.trim().split(' ')[0]; }
+function formatNodeDate(dateStr) { const [y, m, d] = dateStr.split('-').map(Number); return `${m}/${d}`; }
 
 const dimmedNodeIds = computed(() => {
   const ids = new Set()
@@ -390,7 +383,7 @@ const sortedAllTracks = computed(() => {
   })
 })
 
-const headerDateText = computed(() => `${currentYear.value}년 ${currentMonth.value}월`)
+const headerDateText = computed(() => `${currentYear.value} . ${String(currentMonth.value).padStart(2,'0')}`)
 
 const weekDays = computed(() => {
   const d = parseDate(focusedDay.value)
@@ -537,7 +530,10 @@ function initMonthScroll() {
 }
 
 watch(currentYear, (y) => store.fetchHolidaysForYear(y))
-onMounted(() => { store.fetchHolidaysForYear(currentYear.value); nextTick(() => initMonthScroll()) })
+onMounted(() => { 
+  store.fetchHolidaysForYear(currentYear.value); 
+  nextTick(() => initMonthScroll()) 
+})
 
 let _touchStartX = 0; let wheelTimeout = null;
 function onWeekTouchStart(e) { _touchStartX = e.touches[0].clientX }
@@ -550,114 +546,219 @@ function onWeekWheel(e) {
 </script>
 
 <style scoped>
-.app-layout { display: flex; width: 100%; height: 100vh; overflow: hidden; background: var(--bg-base); font-family: 'Escoredream', system-ui, sans-serif; }
-.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+/* ── 폰트 ── */
+@font-face { font-family: 'Mulmaru'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-4@1.1/Mulmaru.woff2') format('woff2'); font-weight: normal; font-display: swap; }
+@font-face { font-family: 'NeoDunggeunmo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmoPro-Regular.woff2') format('woff2'); font-weight: normal; font-display: swap; }
 
-:deep(.calendar-header) { position: relative !important; z-index: 100 !important; }
+/* ── 🎨 테마 변수 (명도 대비 극대화된 8비트 브루탈리즘) ── */
+.theme-light {
+  /* 확실한 대비를 위해 완전한 흰색 버튼과 완전 까만 테두리 사용 */
+  --k-bg: #F4F0EB; 
+  --k-housing: #E6DFD3; 
+  --k-key-bg: #FFFFFF; 
+  --k-key-border: #1A1A1A; 
+  --k-key-shadow: #1A1A1A; 
+  --k-border-main: #1A1A1A;
+  
+  --bg-base: #F4F0EB; 
+  --bg-surface: #E6DFD3; 
+  --bg-elevated: #FFFFFF;
+  --border: #1A1A1A; 
+  --border-mid: #1A1A1A;
+  
+  --text-primary: #1A1A1A; 
+  --text-secondary: #333333; 
+  --text-muted: #555555; 
+  --text-faint: #777777;
+  
+  --accent: #E53935; 
+  --today-bg: rgba(229, 57, 53, 0.1);
+  --sun-color: #E53935; 
+  --sat-color: #1E88E5;
+  
+  --k-acc-1-bg: #E53935; --k-acc-1-shadow: #B71C1C; 
+  --k-acc-2-bg: #1E88E5; --k-acc-2-shadow: #1565C0; 
+  --k-acc-3-bg: #43A047; --k-acc-3-shadow: #2E7D32; 
+}
+.theme-dark {
+  --k-bg: #1A1A1A; 
+  --k-housing: #2C2C2C; 
+  --k-key-bg: #3D3D3D; 
+  --k-key-border: #000000; 
+  --k-key-shadow: #000000; 
+  --k-border-main: #000000;
+  
+  --bg-base: #1A1A1A; 
+  --bg-surface: #2C2C2C; 
+  --bg-elevated: #3D3D3D;
+  --border: #000000; 
+  --border-mid: #000000;
+  
+  --text-primary: #F0F0F0; 
+  --text-secondary: #CCCCCC; 
+  --text-muted: #999999; 
+  --text-faint: #666666;
+  
+  --accent: #FF5252; 
+  --today-bg: rgba(255, 82, 82, 0.15);
+  --sun-color: #FF5252; 
+  --sat-color: #448AFF;
 
-/* ── 공통 ── */
-.calendar-area { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; background: var(--bg-base); }
-.calendar-wrapper { position: relative; width: 100%; height: 100%; background: var(--bg-surface); display: flex; flex-direction: column; overflow: hidden; }
-.calendar-header-row { display: grid; border-bottom: 1px solid var(--border); background: var(--bg-elevated); z-index: 90; position: sticky; top: 0; }
+  --k-acc-1-bg: #FF5252; --k-acc-1-shadow: #D50000; 
+  --k-acc-2-bg: #448AFF; --k-acc-2-shadow: #2962FF; 
+  --k-acc-3-bg: #69F0AE; --k-acc-3-shadow: #00E676; 
+}
+
+/* 글로벌 폰트 통일 */
+.app-layout { display: flex; width: 100%; height: 100vh; overflow: hidden; background: var(--bg-base); font-family: 'NeoDunggeunmo', 'Mulmaru', sans-serif; position: relative; }
+.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; z-index: 10; }
+
+/* ── 📺 시각 효과 (눈 피로도 감소) ── */
+/* 스캔라인을 매우 연하게 조정 */
+.crt-scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.1) 50%); background-size: 100% 4px; z-index: 9999; pointer-events: none; opacity: 0.15; }
+.theme-dark .crt-scanlines { opacity: 0.3; }
+
+/* 어지러운 움직이는 그리드 대신 정적인 도트 패턴 적용 */
+.retro-dot-bg { position: absolute; inset: 0; background-image: radial-gradient(var(--border-mid) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.1; z-index: 0; pointer-events: none; }
+
+/* 헤더 등 딥 스타일 오버라이드 */
+:deep(.calendar-header) { position: relative !important; z-index: 100 !important; background: var(--k-housing); border-bottom: 2px solid var(--border); }
+:deep(.app-sidebar) { border-right: 2px solid var(--border) !important; background: var(--k-housing) !important; }
+
+/* ── 🧱 브루탈리즘 UI 패널 ── */
+.calendar-area { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; background: var(--bg-base); padding: 24px; }
+
+/* 딱 떨어지는 검은색 굵은 테두리와 단단한 그림자 */
+.retro-panel-wrapper { border: 2px solid var(--border); border-radius: 4px; box-shadow: 6px 6px 0 var(--border); overflow: hidden; display: flex; flex-direction: column; background: var(--bg-surface); }
+.retro-panel { background: var(--bg-surface); border: 2px solid var(--border); box-shadow: 6px 6px 0 var(--border); border-radius: 4px; }
+.retro-modal { background: var(--bg-elevated); border: 2px solid var(--border); box-shadow: 8px 8px 0 var(--border); border-radius: 4px; }
+.retro-badge { border: 2px solid var(--border); box-shadow: 2px 2px 0 var(--border); border-radius: 4px; }
+
+/* ── ⌨️ 기계식 버튼 (명확한 대비) ── */
+.mech-key { 
+  padding: 8px 16px; background: var(--bg-elevated); color: var(--text-primary); 
+  border: 2px solid var(--border); border-radius: 4px; 
+  box-shadow: 4px 4px 0 var(--border); /* 흐릿함 없이 단단한 그림자 */
+  cursor: pointer; font-family: 'NeoDunggeunmo', sans-serif; font-size: 14px; transition: all 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800;
+}
+.mech-key:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--border); }
+.key-accent-1 { background: var(--k-acc-1-bg); color: #fff; border-color: var(--border); }
+.key-accent-2 { background: var(--k-acc-2-bg); color: #fff; border-color: var(--border); }
+.key-accent-3 { background: var(--k-acc-3-bg); color: #fff; border-color: var(--border); }
+
+/* ── 📅 월간 뷰 ── */
+.calendar-header-row { display: grid; border-bottom: 2px solid var(--border); background: var(--bg-elevated); z-index: 90; position: sticky; top: 0; }
 .grid-cols-7 { grid-template-columns: repeat(7, 1fr); }
-.day-header { padding: 10px 0; text-align: center; font-size: 12px; font-weight: 700; color: var(--text-faint); }
+.day-header { padding: 12px 0; text-align: center; font-size: 14px; font-weight: 800; color: var(--text-primary); border-right: 2px solid var(--border); }
+.day-header:last-child { border-right: none; }
 .day-header--sat { color: var(--sat-color) !important; }
 .day-header--sun { color: var(--sun-color) !important; }
-.line-canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; }
 
-/* ── 월간 뷰 전용 ── */
-.month-scroll-body { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; z-index: 10; scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); scroll-behavior: smooth; }
+.month-scroll-body { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; z-index: 10; scroll-behavior: smooth; background: var(--bg-base); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); position: relative; }
 
-/* ── ★ 주간 뷰(Week View) 최적화 ── */
-.week-wrapper { 
-  flex: 1; display: flex; flex-direction: column; 
-  position: relative; background: var(--bg-surface); 
-  overflow-y: auto; overflow-x: hidden; 
-  scrollbar-width: thin; 
-  scrollbar-color: var(--scrollbar-thumb) transparent;
+/* ── 🕸️ 캔버스 라인 (가시성 극대화) ── */
+.line-canvas { 
+  position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; width: 100%; height: 100%; 
+  /* 빛 번짐이 아닌 딱딱하고 선명한 그림자 부여 */
+  filter: drop-shadow(2px 2px 0px var(--border)); 
+}
+.theme-dark .line-canvas {
+  /* 다크모드에서는 선 색상이 묻히지 않게 네온 글로우 */
+  filter: drop-shadow(0px 0px 3px rgba(255,255,255,0.4)); 
 }
 
-.sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 90;
-}
+/* ── 플로팅 바 ── */
+.floating-action-bar { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; padding: 16px 24px; z-index: 100; }
+.sel-count { font-weight: 800; color: var(--text-primary); font-size: 16px; margin-right: 8px;}
 
-/* ★ 7일 모두 완벽히 동일한 비율(1:1) 적용 (내용물이 길어도 늘어나지 않도록 minmax 강제) */
-.week-grid-cols {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-}
-
-.week-col-header { padding: 12px 0 8px; text-align: center; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+/* ── 🗓️ 주간 뷰(Week View) ── */
+.week-wrapper { flex: 1; display: flex; flex-direction: column; position: relative; background: var(--bg-surface); overflow-y: auto; overflow-x: hidden; }
+.sticky-header { position: sticky; top: 0; z-index: 90; }
+.week-grid-cols { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.week-col-header { padding: 16px 0; text-align: center; border-right: 2px dashed var(--border); display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .week-col-header:last-child { border-right: none; }
-.week-col-label { font-size: 10px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; }
-.week-col-date { font-size: 18px; font-weight: 800; color: var(--text-muted); font-family: 'Escoredream', sans-serif; display: flex; align-items: center; gap: 5px; }
-.week-col-date.is-today { color: var(--text-primary); }
-.week-today-tag { font-size: 8px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); padding: 2px 5px; border-radius: 4px; color: var(--accent); }
+.week-col-label { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+.week-col-date { font-size: 24px; font-weight: 900; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+.week-col-date.is-today { color: var(--accent); }
+.week-today-tag { font-size: 10px; background: var(--bg-elevated); border: 2px solid var(--accent); padding: 2px 6px; color: var(--accent); }
+.text-accent-1 { color: var(--accent); }
 
 /* 그래프 구역 */
-.week-graph-zone { position: relative; border-bottom: 1px solid var(--border-mid); flex-shrink: 0; background: var(--bg-base); z-index: 10; }
+.week-graph-zone { position: relative; border-bottom: 2px solid var(--border); flex-shrink: 0; z-index: 10; background: var(--bg-base); }
 .week-bg-grid { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-.week-bg-col { border-right: 1px solid var(--border); background: linear-gradient(to bottom, rgba(150, 150, 150, 0.07) 1px, transparent 1px); background-size: 100% 28px; }
+.week-bg-col { border-right: 2px dashed var(--border-mid); opacity: 0.3; }
 .week-bg-col:last-child { border-right: none; }
-.week-lane-bg { position: absolute; left: 0; right: 0; height: 1px; transform: translateY(-50%); z-index: 0; pointer-events: none; }
 
-/* ★ 라벨 구역: 선의 Y축 정중앙에 완벽하게 일치, 점과 닿지 않도록 길이 제한 */
+/* ★ 눈 아팠던 가로선 제거 후 얇은 점선만 유지 */
+.week-lane-bg { 
+  position: absolute; left: 0; right: 0; height: 1px; transform: translateY(-50%); 
+  z-index: 0; pointer-events: none; 
+  border-bottom: 1px dashed var(--border-mid); 
+  background: transparent !important; 
+  opacity: 0.3; 
+}
+
 .week-lane-labels { position: absolute; inset: 0; pointer-events: none; z-index: 45; }
 .week-lane-label { 
-  position: absolute; left: 4px; 
-  transform: translateY(-50%); /* Y축 정중앙 배치 */
-  margin-top: 0; 
-  display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; 
-  border-radius: 4px; border: 1px solid transparent; background: var(--bg-surface); 
-  font-size: 10px; font-weight: 700; color: var(--text-secondary); 
-  cursor: pointer; transition: all 0.15s; pointer-events: auto;
-  /* 점(첫째 날 중앙 = 7.14%)과 겹치지 않도록 최대 너비 제한 (1/14 지점에서 여백 12px 뺌) */
-  max-width: calc((100% / 14) - 12px); 
+  position: absolute; left: 10px; transform: translateY(-50%); 
+  display: inline-flex; align-items: center; gap: 6px; 
+  background: var(--bg-elevated); font-size: 12px; font-weight: 800; 
+  padding: 4px 8px; cursor: pointer; pointer-events: auto; max-width: calc((100% / 14) - 20px); 
 }
-.week-lane-label:hover { border-color: var(--accent) !important; background: var(--bg-elevated); z-index: 100; max-width: max-content; }
-.lane-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.lane-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Escoredream', sans-serif; }
-.lane-hl-badge { font-size: 8px; color: var(--text-faint); margin-left: 2px; flex-shrink: 0; }
+.week-lane-label:hover { filter: brightness(1.1); z-index: 100; max-width: max-content; }
+.lane-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border); }
+.lane-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* 하단 카드 존 */
-.week-card-zone { flex: 1; background: var(--bg-base); min-height: 100%; }
-
-.week-cell { border-right: 1px solid var(--border); padding: 12px 6px 44px; display: flex; flex-direction: column; gap: 8px; position: relative; transition: background 0.15s; cursor: pointer; min-height: 100%; }
+.week-card-zone { flex: 1; background: var(--bg-housing); min-height: 100%; }
+.week-cell { 
+  border-right: 2px solid var(--border); padding: 16px 8px 44px; display: flex; flex-direction: column; gap: 10px; position: relative; transition: 0.15s; cursor: pointer; min-height: 100%; 
+  background: var(--bg-base); 
+}
 .week-cell:last-child { border-right: none; }
-.week-cell:hover { background: var(--bg-elevated); }
-.week-cell--today { background: var(--today-bg) !important; border-top: 2px solid rgba(168, 162, 158, 0.5); }
-.week-cell--selected { background: rgba(59,130,246,0.06) !important; outline: 2px solid var(--accent); outline-offset: -2px; }
-.week-cards { display: flex; flex-direction: column; gap: 8px; }
+.week-cell:hover { filter: brightness(0.95); }
+.week-cell--today { border: 4px solid var(--accent); background: var(--today-bg); }
+.week-cell--selected { background: rgba(0,0,0,0.05); outline: 4px solid var(--accent); outline-offset: -4px; z-index: 2;}
+.week-cards { display: flex; flex-direction: column; gap: 12px; }
 
-.btn-add-week { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 28px; height: 28px; border-radius: 8px; background: var(--bg-hover); color: var(--text-muted); border: 1px solid var(--border); cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.15s; }
+.btn-add-week { 
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); 
+  width: 36px; height: 36px; border-radius: 4px; background: var(--bg-elevated); color: var(--text-primary); 
+  border: 2px solid var(--border); box-shadow: 4px 4px 0 var(--border); 
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.1s; 
+}
 .week-cell:hover .btn-add-week { opacity: 1; }
-.btn-add-week:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-add-week:hover { background: var(--accent); color: #fff; }
+.btn-add-week:active { transform: translate(calc(-50% + 4px), 4px); box-shadow: 0 0 0 transparent; }
 
-@keyframes targetFlash { 0% { background-color: rgba(59, 130, 246, 0.25); box-shadow: inset 0 0 0 3px var(--accent); } 100% { background-color: var(--bg-surface); box-shadow: inset 0 0 0 0px transparent; } }
-:deep(.flash-target) { animation: targetFlash 1.2s ease-out; border-radius: 8px; }
+@keyframes targetFlash { 0% { background-color: var(--today-bg); box-shadow: inset 0 0 0 4px var(--accent); } 100% { background-color: transparent; box-shadow: inset 0 0 0 0px transparent; } }
+:deep(.flash-target) { animation: targetFlash 1.2s ease-out; }
 
-/* 툴팁 및 팝업 (기존 유지) */
-.edge-tooltip-popup { position: absolute; z-index: 80; pointer-events: none; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); margin-top: -10px; display: flex; flex-direction: column; gap: 6px; min-width: max-content; white-space: nowrap; }
-.et-track { font-size: 11px; font-weight: 800; font-family: 'Escoredream', sans-serif; }
-.et-nodes { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; font-family: 'Escoredream', sans-serif; color: var(--text-primary); }
-.et-nodes i { color: var(--text-faint); font-size: 11px; }
+/* ── 툴팁 및 팝업 ── */
+.edge-tooltip-popup { position: absolute; z-index: 80; pointer-events: none; padding: 16px; margin-top: -10px; display: flex; flex-direction: column; gap: 10px; min-width: max-content; white-space: nowrap; }
+.et-track { font-size: 14px; font-weight: 900; }
+.et-nodes { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 800; color: var(--text-primary); }
+.et-nodes i { color: var(--text-muted); font-size: 14px; }
 
-.edge-remote-modal { position: absolute; z-index: 80; width: 240px; background: var(--bg-surface); border: 1.5px solid var(--border-mid); border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); display: flex; flex-direction: column; overflow: hidden; }
-.er-header { padding: 12px 14px; background: var(--bg-elevated); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-.er-track-name { font-size: 12px; font-weight: 800; font-family: 'Escoredream', sans-serif; }
-.er-close { background: none; border: none; color: var(--text-faint); font-size: 14px; cursor: pointer; transition: 0.15s; padding: 0 4px; line-height: 1; }
-.er-close:hover { color: var(--text-primary); }
-.er-body { padding: 14px; display: flex; flex-direction: column; gap: 6px; }
-.er-node { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-elevated); cursor: pointer; transition: all 0.15s ease; }
-.er-node:hover { border-color: var(--accent); background: rgba(59,130,246,0.06); transform: translateX(4px); box-shadow: 0 2px 8px rgba(59,130,246,0.1); }
-.er-node-color { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 4px rgba(0,0,0,0.2); }
+.edge-remote-modal { position: absolute; z-index: 80; width: 280px; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.er-header { padding: 16px; background: var(--bg-elevated); border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.er-track-name { font-size: 14px; font-weight: 900; }
+.er-close { background: none; border: none; color: var(--text-primary); font-size: 18px; cursor: pointer; transition: 0.1s; }
+.er-close:hover { color: var(--accent); transform: scale(1.2); }
+.er-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--bg-base); }
+.er-node { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 4px; border: 2px solid var(--border); cursor: pointer; transition: all 0.1s; background: var(--bg-elevated); box-shadow: 4px 4px 0 var(--border); }
+.er-node:hover { border-color: var(--accent); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--accent); }
+.er-node:active { transform: translate(4px, 4px); box-shadow: 0 0 0 transparent; }
+.er-node-color { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border); }
 .er-node-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-.er-node-day { font-size: 10px; color: var(--text-faint); margin-bottom: 4px; font-family: monospace; font-weight: 600; letter-spacing: 0.05em; }
-.er-node-title { font-size: 13px; font-weight: 700; color: var(--text-primary); font-family: 'Escoredream', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.er-arrow { text-align: center; color: var(--border-mid); font-size: 14px; margin: -2px 0; }
+.er-node-day { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.er-node-title { font-size: 15px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Mulmaru', sans-serif; }
+.er-arrow { text-align: center; color: var(--border-mid); font-size: 20px; }
+
+/* 스크롤바 감추기 */
+.custom-scroll::-webkit-scrollbar { display: none; }
+.custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
 @keyframes slideInFromLeft { from { transform: translateX(-6%); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }
 @keyframes slideInFromRight { from { transform: translateX(6%); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }

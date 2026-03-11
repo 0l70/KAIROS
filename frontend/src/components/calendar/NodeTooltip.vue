@@ -1,165 +1,116 @@
 <template>
-  <Transition name="tooltip-fade">
-    <div
-      v-if="visible"
-      ref="tooltipEl"
-      class="schedule-tooltip"
-      :style="posStyle"
-      @click.stop
-    >
-      <div class="tooltip-time-row">
-        <i class="fas fa-clock" />
-        <span>{{ tooltip.time }}</span>
+  <div class="tooltip-wrapper retro-modal" @click.stop>
+    <div class="tooltip-header">
+      <div class="header-track retro-badge" :style="{ color: trackColor, borderColor: trackColor }">
+        <span class="track-dot" :style="{ background: trackColor }"></span>
+        {{ trackName }}
       </div>
-      <div class="tooltip-title">{{ tooltip.title }}</div>
-      <div v-if="tooltip.tags?.length" class="tooltip-tags">
-        <span v-for="(tag, i) in tooltip.tags" :key="i" class="tooltip-tag">{{ tag }}</span>
-      </div>
-      <div class="tooltip-actions">
-        <button class="tooltip-btn tooltip-btn--edit"   @click.stop="$emit('edit')">
-          <i class="fas fa-edit" /> 수정
-        </button>
-        <button class="tooltip-btn tooltip-btn--delete" @click.stop="$emit('delete')">
-          <i class="fas fa-trash" /> 삭제
-        </button>
+      <div class="header-actions">
+        <button class="action-btn" title="Edit" @click="$emit('edit')"><i class="fas fa-edit" /></button>
+        <button class="action-btn action-btn-del" title="Delete" @click="$emit('delete')"><i class="fas fa-trash" /></button>
+        <button class="action-btn" title="Close" @click="$emit('close')"><i class="fas fa-times" /></button>
       </div>
     </div>
-  </Transition>
+
+    <div class="tooltip-body terminal-bg">
+      <div class="detail-row">
+        <i class="fas fa-calendar-day detail-icon" />
+        <span class="detail-text">{{ schedule.day }}</span>
+      </div>
+      <div class="detail-row" v-if="schedule.tooltip?.time">
+        <i class="fas fa-clock detail-icon" />
+        <span class="detail-text">{{ schedule.tooltip.time }}</span>
+      </div>
+      
+      <div class="title-wrap">
+        <h4 class="tooltip-title">{{ schedule.tooltip?.title || schedule.text }}</h4>
+      </div>
+
+      <div class="tags-wrap" v-if="schedule.tooltip?.tags?.length">
+        <span v-for="tag in schedule.tooltip.tags" :key="tag" class="tag-chip retro-badge text-accent-1">#{{ tag }}</span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
-
-const props = defineProps({
-  visible: { type: Boolean, required: true },
-  tooltip: { type: Object,  required: true }
+defineProps({
+  schedule: Object,
+  trackName: String,
+  trackColor: String
 })
-defineEmits(['edit', 'delete'])
-
-const tooltipEl = ref(null)
-const posStyle  = ref({})
-
-watch(() => props.visible, async (val) => {
-  if (!val) { posStyle.value = {}; return }
-  await nextTick()
-
-  const el = tooltipEl.value
-  if (!el) return
-
-  const nodeEl  = el.parentElement   // schedule-dot
-  const cellEl  = nodeEl?.closest('.calendar-cell')
-  const gridEl  = nodeEl?.closest('.calendar-grid')
-
-  if (!cellEl || !gridEl) {
-    // 기본값
-    posStyle.value = { bottom: '28px', left: '50%', transform: 'translateX(-50%)' }
-    return
-  }
-
-  const gridRect = gridEl.getBoundingClientRect()
-  const cellRect = cellEl.getBoundingClientRect()
-
-  // ── 가로 위치: 몇 번째 컬럼? (0~6) ──
-  const colW   = gridRect.width / 7
-  const colIdx = Math.round((cellRect.left - gridRect.left) / colW)
-
-  // ── 세로 위치: 화면 기준 행 번호 ──
-  // getBoundingClientRect는 스크롤과 무관하게 화면상 상대 위치를 반환
-  // cellRect.top - gridRect.top: 둘 다 같은 스크롤 오프셋을 가지므로 상쇄됨
-  const cellRelTop = cellRect.top - gridRect.top   // grid 내 현재 화면 Y
-  const ROW_H      = cellRect.height || 150
-  // 음수면 스크롤로 위로 올라간 경우 → 스크롤 보정
-  const scrollBody = nodeEl?.closest('.month-scroll-body')
-  const scrollTop  = scrollBody ? scrollBody.scrollTop : 0
-  const cellAbsRow = Math.floor((cellRelTop + scrollTop) / ROW_H)
-
-  // ── 방향 결정 ──
-  // 3개월 뷰에서 절대 행 번호로 판단
-  // 이전달 행(0~prevRows-1)과 현재달 1~2행 → 아래
-  // 충분히 내려온 행(3행 이상) → 위
-  // 단순하게: 화면에서 위쪽 절반에 있으면 → 아래
-  const showBelow = cellRect.top < (window.innerHeight / 2)
-
-  // 가로: 맨 좌측(col 0) 또는 맨 우측(col 6) → 옆으로 펼치기, 나머지 → 중앙
-  let horizStyle = {}
-  if (colIdx === 0) {
-    // 왼쪽 끝: 오른쪽으로 펼치기
-    horizStyle = { left: '0', right: 'auto', transform: 'none' }
-  } else if (colIdx >= 6) {
-    // 오른쪽 끝: 왼쪽으로 펼치기
-    horizStyle = { right: '0', left: 'auto', transform: 'none' }
-  } else {
-    // 중앙 정렬
-    horizStyle = { left: '50%', right: 'auto', transform: 'translateX(-50%)' }
-  }
-
-  // 세로 오프셋
-  const vertStyle = showBelow
-    ? { top: '18px', bottom: 'auto' }
-    : { bottom: '18px', top: 'auto' }
-
-  posStyle.value = { ...vertStyle, ...horizStyle }
-})
+defineEmits(['edit', 'delete', 'close'])
 </script>
 
 <style scoped>
-.schedule-tooltip {
+/* 💡 브루탈리즘 툴팁 팝업 스타일 */
+.retro-modal {
   position: absolute;
-  width: 218px;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
   background: var(--bg-surface);
-  border: 1.5px solid var(--border-mid);
-  border-radius: 14px;
-  padding: 13px 14px;
-  box-shadow:
-    0 8px 28px rgba(0,0,0,0.2),
-    0 2px 8px rgba(0,0,0,0.1);
-  z-index: 200;
+  border: 2px solid var(--border);
+  box-shadow: 6px 6px 0 var(--border);
+  border-radius: 6px;
+  z-index: 100;
+  font-family: 'Mulmaru', sans-serif;
   cursor: default;
 }
 
-.tooltip-time-row {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 600;
-  color: var(--text-muted); font-family: monospace;
-  margin-bottom: 6px;
+/* 말풍선 꼬리 (삼각형) */
+.retro-modal::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 8px 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent var(--border) transparent;
 }
-.tooltip-title {
-  font-weight: 700; color: var(--text-primary);
-  font-size: 13px; line-height: 1.45; margin-bottom: 8px;
-  font-family: 'Escoredream', sans-serif;
-}
-.tooltip-tags {
-  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px;
-}
-.tooltip-tag {
-  background: var(--bg-elevated); color: var(--text-muted);
-  font-size: 9px; font-weight: 600;
-  padding: 2px 7px; border-radius: 999px;
-  border: 1px solid var(--border);
-}
-.tooltip-actions {
-  display: flex; gap: 6px;
-  padding-top: 9px; border-top: 1px solid var(--border);
-}
-.tooltip-btn {
-  flex: 1; font-size: 11px; font-weight: 700;
-  font-family: 'Escoredream', sans-serif;
-  border: 1px solid; border-radius: 8px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  gap: 5px; padding: 6px 0; transition: all 0.15s;
-}
-.tooltip-btn--edit {
-  background: rgba(59,130,246,0.1); color: #3b82f6;
-  border-color: rgba(59,130,246,0.3);
-}
-.tooltip-btn--edit:hover   { background: #3b82f6; color: #fff; border-color: #3b82f6; }
-.tooltip-btn--delete {
-  background: rgba(239,68,68,0.08); color: #ef4444;
-  border-color: rgba(239,68,68,0.25);
-}
-.tooltip-btn--delete:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
 
-.tooltip-fade-enter-active { transition: opacity 0.15s ease; }
-.tooltip-fade-leave-active { transition: opacity 0.1s ease; }
-.tooltip-fade-enter-from, .tooltip-fade-leave-to { opacity: 0; }
+.tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 2px dashed var(--border);
+  background: var(--bg-elevated);
+  border-radius: 6px 6px 0 0;
+}
+
+.retro-badge {
+  border: 2px solid var(--border);
+  background: var(--bg-surface);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'NeoDunggeunmo', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.track-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); }
+
+.header-actions { display: flex; gap: 8px; }
+.action-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; transition: 0.1s; padding: 4px; }
+.action-btn:hover { color: var(--text-primary); transform: scale(1.2); }
+.action-btn-del:hover { color: var(--accent); }
+
+.tooltip-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.terminal-bg { background: var(--k-key-shadow); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); border-radius: 0 0 4px 4px; color: var(--text-primary); }
+
+.detail-row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-muted); }
+.detail-icon { font-size: 12px; width: 14px; text-align: center; color: var(--text-primary); }
+
+.title-wrap { margin-top: 4px; }
+.tooltip-title { font-size: 16px; font-weight: 800; margin: 0; color: var(--text-primary); line-height: 1.4; }
+
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tag-chip { padding: 2px 6px; font-size: 10px; background: var(--bg-elevated); }
+.text-accent-1 { color: var(--accent); }
 </style>
