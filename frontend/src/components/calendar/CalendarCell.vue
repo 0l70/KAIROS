@@ -41,19 +41,26 @@ import CalendarNode from './CalendarNode.vue'
 const props = defineProps({
   dateStr: String,
   currentMonth: Number,
-  schedules: Array,
+  schedules: { type: Array, default: () => [] },
   activeTooltipId: String,
   isToday: Boolean,
   isSelected: Boolean,
-  hiddenTracks: Object,
-  dimmedNodeIds: Object,
+  // 💡 FIX: undefined 에러를 방지하기 위해 기본값을 빈 Set으로 설정합니다!
+  hiddenTracks: { type: Object, default: () => new Set() },
+  dimmedNodeIds: { type: Object, default: () => new Set() },
 })
+
 defineEmits(['cell-click', 'add-schedule', 'toggle-tooltip', 'edit-schedule', 'delete-schedule', 'day-detail', 'hover-node'])
 
 const dayNum = computed(() => parseInt(props.dateStr.split('-')[2], 10))
 const isCurrentMonth = computed(() => { const [, m] = props.dateStr.split('-').map(Number); return m === props.currentMonth })
 
-const filteredSchedules = computed(() => props.schedules.filter(s => !props.hiddenTracks.has(s.track)))
+// 💡 안전한 필터링: props.hiddenTracks가 존재할 때만 .has() 실행
+const filteredSchedules = computed(() => {
+  if (!props.hiddenTracks) return props.schedules;
+  return props.schedules.filter(s => !props.hiddenTracks.has(s.track))
+})
+
 const MAX_VISIBLE = 3
 const visibleSchedules = computed(() => filteredSchedules.value.slice(0, MAX_VISIBLE))
 const hiddenCount = computed(() => Math.max(0, filteredSchedules.value.length - MAX_VISIBLE))

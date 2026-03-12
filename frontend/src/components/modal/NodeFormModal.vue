@@ -77,49 +77,38 @@ function save() {
 @font-face { font-family: 'Mulmaru'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-4@1.1/Mulmaru.woff2') format('woff2'); font-weight: normal; font-display: swap; }
 @font-face { font-family: 'NeoDunggeunmo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmoPro-Regular.woff2') format('woff2'); font-weight: normal; font-display: swap; }
 
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(2px); }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
 
-/* 💡 브루탈리즘 모달 스타일 */
+/* 💡 브루탈리즘 모달 스타일 일치 완료 */
 .retro-modal {
   width: 90%; max-width: 480px;
   background: var(--bg-surface);
   border: 2px solid var(--border);
   box-shadow: 8px 8px 0 var(--border);
-  border-radius: 6px;
+  border-radius: 4px;
   display: flex; flex-direction: column;
   font-family: 'Mulmaru', sans-serif;
 }
 
-.modal-header { padding: 20px 24px; border-bottom: 2px dashed var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-elevated); border-radius: 6px 6px 0 0;}
+.modal-header { padding: 20px 24px; border-bottom: 2px dashed var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-elevated); border-radius: 4px 4px 0 0;}
 .modal-header h2 { font-size: 20px; font-weight: 900; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-primary); margin: 0; }
 
-.retro-text-hover { transition: all 0.1s ease; display: inline-block; position: relative; }
-.retro-text-hover:hover { color: var(--accent); transform: translate(-2px, -2px); cursor: pointer; animation: analog-jitter 0.2s infinite linear alternate; }
-@keyframes analog-jitter {
-  0% { text-shadow: 3px 3px 0px var(--border), -1px 0 0 rgba(255,0,0,0.7), 1px 0 0 rgba(0,255,255,0.7); }
-  50% { text-shadow: 3px 3px 0px var(--border), 1px 0 0 rgba(255,0,0,0.7), -1px 0 0 rgba(0,255,255,0.7); }
-  100% { text-shadow: 3px 3px 0px var(--border), -1px 0 0 rgba(255,0,0,0.7), 1px 0 0 rgba(0,255,255,0.7); }
-}
-
-.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; max-height: 60vh; overflow-y: auto; }
+.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; max-height: 60vh; overflow-y: auto; background: var(--bg-base); }
 .form-group { display: flex; flex-direction: column; gap: 8px; }
 .form-label { font-size: 14px; font-weight: 800; font-family: 'NeoDunggeunmo', sans-serif; color: var(--text-primary); }
 .form-row { display: flex; gap: 12px; }
 .flex-1 { flex: 1; }
 
-.terminal-input { background: var(--bg-elevated); color: var(--text-primary); border: 2px solid var(--border); border-radius: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); padding: 12px; font-family: 'NeoDunggeunmo', monospace; font-size: 14px; outline: none; transition: 0.2s;}
-.terminal-input:focus { border-color: var(--accent); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 2px var(--accent); }
+.terminal-input { background: #111111; color: #00FF66; border: 2px solid var(--border); border-radius: 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); padding: 12px; font-family: 'NeoDunggeunmo', monospace; font-size: 14px; outline: none; transition: 0.2s;}
+.terminal-input:focus { border-color: var(--accent); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 0 2px var(--accent); }
 
-.modal-footer { padding: 20px 24px; border-top: 2px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; background: var(--bg-elevated); border-radius: 0 0 6px 6px;}
+.modal-footer { padding: 20px 24px; border-top: 2px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; background: var(--bg-elevated); border-radius: 0 0 4px 4px;}
 
 .mech-key { padding: 10px 20px; background: var(--bg-elevated); color: var(--text-primary); border: 2px solid var(--border); border-radius: 4px; box-shadow: 4px 4px 0 var(--border); cursor: pointer; font-family: 'NeoDunggeunmo', sans-serif; font-size: 14px; font-weight: 800; transition: all 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .mech-key:active { transform: translate(4px, 4px) !important; box-shadow: 0 0 0 transparent !important; }
 .mech-key:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none;}
-.key-accent-1 { background: var(--accent); color: #fff; }
+.key-accent-1 { background: var(--accent); color: #fff; border-color: var(--border);}
 
 .modal-fade-enter-active, .modal-fade-leave-active { transition: opacity 0.2s; }
 .modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }
-.custom-scroll::-webkit-scrollbar { width: 6px; }
-.custom-scroll::-webkit-scrollbar-track { background: transparent; }
-.custom-scroll::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 0; }
 </style>

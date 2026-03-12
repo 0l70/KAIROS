@@ -1,14 +1,36 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useThemeStore } from '@/stores/useThemeStore'
 
 export const useCalendarStore = defineStore('calendar', () => {
-  // ★ 채도를 낮춘 고급스러운 뮤트톤(모란디 컬러) 팔레트
+  const themeStore = useThemeStore()
+
+  // ★ 8비트 아케이드 컨셉 & 다크모드 대응 동적 팔레트
+  const PALETTE = {
+    light: { 
+      blue: '#0050FF',   // 록맨 블루 (단단하고 쨍한 파랑)
+      red: '#E02401',    // 마리오 레드 (순도 높은 빨강)
+      green: '#00A859',  // 젤다 그린 (눈이 편안한 초록)
+      yellow: '#FFB000', // 팩맨 옐로우 (가독성 높은 짙은 노랑)
+      purple: '#8E24AA', // 레트로 퍼플
+      cyan: '#00ACC1'    // 터미널 시안
+    },
+    dark: { 
+      blue: '#448AFF',   // 네온 블루 (어둠 속에서 빛나는 파랑)
+      red: '#FF3366',    // 사이버펑크 레드 (핑크빛 도는 네온 레드)
+      green: '#00FF66',  // 매트릭스 그린 (형광 초록)
+      yellow: '#FFD500', // 네온 옐로우 (강렬한 형광 노랑)
+      purple: '#E040FB', // 신스웨이브 퍼플
+      cyan: '#18FFFF'    // 레이저 시안
+    }
+  }
+
+  // 💡 colorKey 속성을 추가하여 모드 전환 시 색상을 매핑합니다.
   const tracks = ref([
-    { id: 'project',   name: '졸업작품 (Spring Boot)', color: '#607D8B', index: 0, isEnded: false }, // 슬레이트 블루
-    { id: 'cert',      name: '정보처리기사 준비',      color: '#B97A7E', index: 1, isEnded: false }, // 더스티 로즈
-    { id: 'algo',      name: '코딩테스트 스터디',      color: '#8B9A73', index: 2, isEnded: false }, // 세이지 그린
-    // ★ 웜 오커 대신, 다른 색과 겹치지 않는 차분하고 고급스러운 '더스티 클레이(Dusty Clay)' 로 교체
-    { id: 'cs',        name: 'CS 전공지식',            color: '#A87C6C', index: 3, isEnded: false }, 
+    { id: 'project',   name: '졸업작품 (Spring Boot)', colorKey: 'blue',   color: '#1E88E5', index: 0, isEnded: false },
+    { id: 'cert',      name: '정보처리기사 준비',      colorKey: 'red',    color: '#E53935', index: 1, isEnded: false },
+    { id: 'algo',      name: '코딩테스트 스터디',      colorKey: 'green',  color: '#43A047', index: 2, isEnded: false },
+    { id: 'cs',        name: 'CS 전공지식',            colorKey: 'yellow', color: '#FBC02D', index: 3, isEnded: false },
   ])
 
   const schedules = ref([
@@ -49,21 +71,35 @@ export const useCalendarStore = defineStore('calendar', () => {
     { from: 'p2', to: 's3' }, { from: 'c4', to: 'p4' }, { from: 's2', to: 'p5' }, { from: 'a2', to: 'c3' }, 
   ])
 
-  // 시스템(형광펜) 트랙 색상
+  // 💡 실시간 테마 감지하여 색상을 변환하는 Computed 적용
   const allTracks = computed(() => {
-    const list = [...tracks.value]
-    if (!list.some(t => t.id === 'prompt')) list.push({ id: 'prompt', name: '프롬프트', color: '#D4C27F', index: 98, isHighlight: true, isEnded: false })
-    if (!list.some(t => t.id === 'blog')) list.push({ id: 'blog', name: '블로그 어시스턴트', color: '#7CA9A9', index: 99, isHighlight: true, isEnded: false })
+    const mode = themeStore.isDark ? 'dark' : 'light';
+    const list = tracks.value.map(t => ({
+      ...t,
+      color: t.colorKey ? PALETTE[mode][t.colorKey] : t.color
+    }))
+    
+    if (!list.some(t => t.id === 'prompt')) {
+      list.push({ id: 'prompt', name: '프롬프트', color: PALETTE[mode].purple, index: 98, isHighlight: true, isEnded: false })
+    }
+    if (!list.some(t => t.id === 'blog')) {
+      list.push({ id: 'blog', name: '블로그 어시스턴트', color: PALETTE[mode].cyan, index: 99, isHighlight: true, isEnded: false })
+    }
     return list.sort((a, b) => a.index - b.index)
   })
 
-  const HIGHLIGHT_TRACKS = [
-    { id: 'prompt', name: '프롬프트', color: '#D4C27F' },
-    { id: 'blog', name: '블로그 어시스턴트', color: '#7CA9A9' }
-  ]
+  // 💡 하이라이트 트랙도 테마에 맞춰 변동
+  const HIGHLIGHT_TRACKS = computed(() => {
+    const mode = themeStore.isDark ? 'dark' : 'light';
+    return [
+      { id: 'prompt', name: '프롬프트', color: PALETTE[mode].purple },
+      { id: 'blog', name: '블로그 어시스턴트', color: PALETTE[mode].cyan }
+    ]
+  })
 
-  const activeTracks = computed(() => tracks.value.filter(t => !t.isEnded))
-  const endedTracks  = computed(() => tracks.value.filter(t => t.isEnded))
+  // Computed로 allTracks를 구독하여 색상 동기화
+  const activeTracks = computed(() => allTracks.value.filter(t => !t.isEnded && !t.isHighlight))
+  const endedTracks  = computed(() => allTracks.value.filter(t => t.isEnded && !t.isHighlight))
 
   const holidays = ref({})
   const fetchedYears = ref(new Set())
@@ -76,17 +112,10 @@ export const useCalendarStore = defineStore('calendar', () => {
       const API_KEY = import.meta.env.VITE_GOV_API_KEY || 'TEST_KEY'
       if (API_KEY === 'TEST_KEY' || !API_KEY) {
         Object.assign(holidays.value, {
-          [`${year}-01-01`]: '신정',
-          [`${year}-03-01`]: '삼일절',
-          [`${year}-05-05`]: '어린이날',
-          [`${year}-06-06`]: '현충일',
-          [`${year}-08-15`]: '광복절',
-          [`${year}-10-03`]: '개천절',
-          [`${year}-10-09`]: '한글날',
-          [`${year}-12-25`]: '기독탄신일'
+          [`${year}-01-01`]: '신정', [`${year}-03-01`]: '삼일절', [`${year}-05-05`]: '어린이날', [`${year}-06-06`]: '현충일',
+          [`${year}-08-15`]: '광복절', [`${year}-10-03`]: '개천절', [`${year}-10-09`]: '한글날', [`${year}-12-25`]: '기독탄신일'
         });
-        fetchedYears.value.add(year);
-        return;
+        fetchedYears.value.add(year); return;
       }
       const url = `https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?solYear=${year}&ServiceKey=${API_KEY}&_type=json&numOfRows=100`
       const response = await fetch(url)
@@ -102,12 +131,12 @@ export const useCalendarStore = defineStore('calendar', () => {
         })
       }
       fetchedYears.value.add(year)
-    } catch (error) {
-      console.error(`${year}년 공휴일 데이터를 불러오는데 실패했습니다:`, error)
-    }
+    } catch (error) { console.error(`${year}년 공휴일 데이터를 불러오는데 실패했습니다:`, error) }
   }
 
   const getSchedulesForDay = (dateStr) => schedules.value.filter(s => s.day === dateStr)
+  
+  // allTracks에서 조회하여 다크모드 색상까지 완벽히 가져옴
   const getTrackById = (id) => allTracks.value.find(t => t.id === id)
 
   const getAvailableIndex = () => {
@@ -121,23 +150,14 @@ export const useCalendarStore = defineStore('calendar', () => {
     const t = tracks.value.find(x => x.id === id)
     if (t) {
       if (t.isEnded) {
-        if (activeTracks.value.length >= 4) {
-          alert('현재 진행 중인 트랙이 4개입니다. 다른 트랙을 종료한 후 다시 활성화해주세요.')
-          return
-        }
-        t.index = getAvailableIndex() 
-        t.isEnded = false
-      } else {
-        t.isEnded = true
-      }
+        if (activeTracks.value.length >= 4) { alert('현재 진행 중인 트랙이 4개입니다. 다른 트랙을 종료한 후 다시 활성화해주세요.'); return }
+        t.index = getAvailableIndex(); t.isEnded = false
+      } else { t.isEnded = true }
     }
   }
 
   const addTrack = (newTrack) => {
-    if (activeTracks.value.length >= 4) {
-      alert('진행 중인 트랙은 최대 4개까지만 생성할 수 있습니다.')
-      return
-    }
+    if (activeTracks.value.length >= 4) { alert('진행 중인 트랙은 최대 4개까지만 생성할 수 있습니다.'); return }
     tracks.value.push({ ...newTrack, isEnded: false, index: getAvailableIndex() })
   }
 
