@@ -1,60 +1,54 @@
 <template>
   <div class="app-layout">
     <AppSidebar />
+
     <main class="main-content custom-scroll">
       <header class="page-header">
-        <div>
-          <h1 class="page-title">HISTORY</h1>
-          <p class="page-desc">지금까지의 성장 궤적과 회고</p>
-        </div>
+        <div class="header-title"><i class="fas fa-history" /> GROWTH JOURNAL</div>
       </header>
 
-      <div class="page-body">
-        <div class="filter-bar">
-          <div class="tabs">
-            <button class="tab-btn active">ALL RECORDS</button>
-            <button class="tab-btn">JOURNAL</button>
+      <div class="content-inner">
+        <div class="title-section">
+          <h2>나의 학습 및 성장 기록</h2>
+          <div class="select-wrapper">
+            <select class="brutal-select-small">
+              <option>최근 1개월</option>
+              <option>최근 3개월</option>
+              <option>전체 기간</option>
+            </select>
+            <i class="fas fa-chevron-down select-icon" />
           </div>
-          <select class="track-select">
-            <option value="all">ALL TRACKS</option>
-            <option v-for="t in store.allTracks" :key="t.id" :value="t.id">{{ t.name }}</option>
-          </select>
         </div>
 
-        <div class="timeline-container">
-          <div class="timeline-line"></div>
-          
-          <div class="timeline-item">
-            <div class="tl-date">MAR 24</div>
-            <div class="tl-dot"></div>
-            <div class="tl-content">
-              <div class="tl-card">
-                <div class="tl-header">
-                  <span class="tl-badge">졸업작품</span>
-                  <span class="tl-time">22:00</span>
-                </div>
-                <h3 class="tl-title">DB ERD 설계 1차 완료</h3>
-                <div class="tl-journal">
-                  <p>"유저와 게시글 1:N 관계 설정 완료. JPA 양방향 매핑 고민 필요."</p>
-                </div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value text-blue-600">24</div>
+            <div class="stat-label">완료한 활동</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value text-green-600">85%</div>
+            <div class="stat-label">목표 달성률</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value text-purple-600">12</div>
+            <div class="stat-label">작성한 회고/블로그</div>
+          </div>
+        </div>
+
+        <div class="timeline-wrapper">
+          <div v-for="journal in growthLogs" :key="journal.id" class="journal-card">
+            <div class="j-header">
+              <span class="j-date">{{ journal.date }}</span>
+              <div class="j-tags">
+                <span v-for="tag in journal.tags" :key="tag" class="j-tag">{{ tag }}</span>
               </div>
             </div>
-          </div>
-
-          <div class="timeline-item">
-            <div class="tl-date">MAR 22</div>
-            <div class="tl-dot"></div>
-            <div class="tl-content">
-              <div class="tl-card">
-                <div class="tl-header">
-                  <span class="tl-badge">정처기</span>
-                  <span class="tl-time">10:00</span>
-                </div>
-                <h3 class="tl-title">필기 기출 3개년 풀이</h3>
-                <div class="tl-journal">
-                  <p>"디자인 패턴 암기 부족 확인. 요약본 재검토 예정."</p>
-                </div>
-              </div>
+            <h3 class="j-title">{{ journal.title }}</h3>
+            <p class="j-desc">{{ journal.description }}</p>
+            
+            <div class="j-ai-feedback">
+              <i class="fas fa-magic" />
+              <span><strong>AI Comment:</strong> {{ journal.aiFeedback }}</span>
             </div>
           </div>
         </div>
@@ -64,48 +58,68 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import AppSidebar from '@/components/AppSidebar.vue'
-import { useCalendarStore } from '@/stores/useCalendarStore'
-const store = useCalendarStore()
+
+const growthLogs = ref([
+  {
+    id: 1,
+    date: '2026-03-01',
+    title: 'React 렌더링 최적화 적용',
+    description: 'useMemo와 useCallback을 사용하여 불필요한 리렌더링을 방지하는 실습을 완료했습니다.',
+    tags: ['React', 'Frontend'],
+    aiFeedback: '이전 커밋 대비 렌더링 성능이 향상된 코드를 작성했습니다. 다음은 상태 관리 툴 연동을 추천합니다.'
+  },
+  {
+    id: 2,
+    date: '2026-02-25',
+    title: 'TypeScript 기초 완강',
+    description: '인터페이스와 제네릭을 활용한 기본 타입 선언 방법을 학습하고 관련 블로그 포스팅을 작성했습니다.',
+    tags: ['TypeScript', 'Velog'],
+    aiFeedback: '블로그 글의 구조가 매우 논리적입니다. 이제 실제 프로젝트에 TS를 도입해 볼 차례입니다.'
+  }
+])
 </script>
 
 <style scoped>
 .app-layout { display: flex; width: 100%; height: 100vh; overflow: hidden; background: var(--bg-base); font-family: 'Space Grotesk', 'Escoredream', system-ui, sans-serif; }
-.main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg-base); }
-.custom-scroll::-webkit-scrollbar { width: 6px; } .custom-scroll::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 0; }
+.main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+.custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+.custom-scroll::-webkit-scrollbar { display: none; }
 
-.page-header { padding: 40px 40px 20px; border-bottom: 2px solid var(--border); position: sticky; top: 0; background: var(--bg-surface); z-index: 10; }
-.page-title { font-size: 32px; font-weight: 900; color: var(--text-primary); letter-spacing: 0.05em; }
-.page-desc { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-top: 8px; }
+.page-header { display: flex; align-items: center; padding: 20px 32px; border-bottom: 2px solid var(--text-primary); background: var(--bg-surface); position: sticky; top: 0; z-index: 10; }
+.header-title { font-size: 16px; font-weight: 900; letter-spacing: 0.1em; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
 
-.page-body { padding: 40px; max-width: 900px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 32px; }
+.content-inner { max-width: 900px; margin: 0 auto; padding: 48px 32px; width: 100%; }
 
-.filter-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text-primary); padding-bottom: 16px; }
-.tabs { display: flex; gap: 24px; }
-.tab-btn { background: none; border: none; font-size: 14px; font-weight: 800; color: var(--text-muted); cursor: pointer; letter-spacing: 0.05em; transition: 0.1s; padding: 0 0 8px 0; position: relative; }
-.tab-btn.active { color: var(--text-primary); }
-.tab-btn.active::after { content: ''; position: absolute; bottom: -18px; left: 0; right: 0; height: 4px; background: var(--text-primary); }
+.title-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; flex-wrap: wrap; gap: 16px; }
+.title-section h2 { font-size: 28px; font-weight: 900; color: var(--text-primary); }
+.select-wrapper { position: relative; }
+.brutal-select-small { padding: 12px 36px 12px 16px; border: 2px solid var(--text-primary); background: var(--bg-surface); color: var(--text-primary); font-size: 13px; font-weight: 800; outline: none; cursor: pointer; box-shadow: 4px 4px 0 #6b7280; transition: all 0.1s; appearance: none; }
+.brutal-select-small:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #6b7280; }
+.select-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; color: var(--text-primary); }
 
-.track-select { background: transparent; border: 2px solid var(--border); font-family: 'Space Grotesk', sans-serif; font-weight: 800; color: var(--text-primary); padding: 8px 12px; font-size: 12px; outline: none; cursor: pointer; border-radius: 0; }
-.track-select:hover { border-color: var(--text-primary); }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 48px; }
+.stat-card { background: var(--bg-surface); border: 2px solid var(--text-primary); padding: 24px; text-align: center; box-shadow: 6px 6px 0 #6b7280; transition: transform 0.1s; }
+.stat-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 #6b7280; }
+.stat-value { font-size: 40px; font-weight: 900; font-family: monospace; margin-bottom: 8px; }
+.stat-label { font-size: 14px; font-weight: 800; color: var(--text-muted); }
 
-.timeline-container { position: relative; padding-left: 100px; display: flex; flex-direction: column; gap: 32px; margin-top: 20px; }
-.timeline-line { position: absolute; left: 146px; top: 10px; bottom: 0; width: 2px; background: var(--border); }
+.timeline-wrapper { display: flex; flex-direction: column; gap: 24px; border-left: 4px solid var(--border); padding-left: 24px; margin-left: 12px; }
+.journal-card { position: relative; background: var(--bg-surface); border: 2px solid var(--text-primary); padding: 24px; box-shadow: 6px 6px 0 #6b7280; transition: all 0.1s; }
+.journal-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 #6b7280; }
+.journal-card::before { content: ''; position: absolute; left: -38px; top: 24px; width: 24px; height: 24px; background: var(--bg-base); border: 4px solid var(--text-primary); border-radius: 50%; }
 
-.timeline-item { position: relative; display: flex; gap: 40px; }
-.tl-date { width: 60px; flex-shrink: 0; font-size: 14px; font-weight: 900; color: var(--text-primary); text-align: right; margin-top: 2px; }
-.tl-dot { position: absolute; left: 140px; top: 4px; width: 14px; height: 14px; background: var(--bg-base); border: 2px solid var(--text-primary); z-index: 2; transition: 0.1s; }
-.timeline-item:hover .tl-dot { background: var(--text-primary); transform: scale(1.2); }
+.j-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px; }
+.j-date { font-size: 13px; font-weight: 900; font-family: monospace; color: var(--text-muted); }
+.j-tags { display: flex; gap: 8px; }
+.j-tag { font-size: 11px; font-weight: 800; border: 1px solid var(--text-primary); padding: 4px 8px; color: var(--text-primary); }
 
-.tl-content { flex: 1; }
-.tl-card { background: var(--bg-surface); border: 2px solid var(--text-primary); padding: 24px; box-shadow: 6px 6px 0 var(--border); transition: 0.1s; }
-.timeline-item:hover .tl-card { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--text-primary); }
+.j-title { font-size: 18px; font-weight: 900; color: var(--text-primary); margin-bottom: 12px; }
+.j-desc { font-size: 14px; font-weight: 700; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
 
-.tl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px dashed var(--border); padding-bottom: 12px; }
-.tl-badge { font-size: 11px; font-weight: 900; color: var(--bg-base); background: var(--text-primary); padding: 4px 8px; letter-spacing: 0.05em; text-transform: uppercase; }
-.tl-time { font-size: 12px; font-weight: 800; color: var(--text-muted); }
-.tl-title { font-size: 18px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; }
+.j-ai-feedback { background: var(--bg-base); border: 2px dashed var(--text-primary); padding: 14px 16px; font-size: 13px; color: var(--text-primary); display: flex; gap: 10px; align-items: flex-start; }
+.j-ai-feedback i { color: #ffca28; margin-top: 2px; font-size: 16px; }
 
-.tl-journal { background: transparent; border-left: 4px solid var(--text-primary); padding: 8px 16px; margin-top: 16px; }
-.tl-journal p { font-size: 14px; font-weight: 600; color: var(--text-secondary); line-height: 1.6; margin: 0; font-style: italic; }
+@media (max-width: 640px) { .stat-grid { grid-template-columns: 1fr; } }
 </style>
