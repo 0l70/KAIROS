@@ -57,13 +57,30 @@
                     <span class="tl-track-dot" :style="{ background: trackColor(s.track) }" />
                     {{ trackName(s.track) }}
                   </div>
+                  
                   <div class="tl-card-title">{{ s.tooltip?.title || s.text }}</div>
+                  
+                  <div v-if="s.progress !== undefined" class="mt-2 mb-2">
+                    <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1">
+                      <span>PROGRESS</span>
+                      <span>{{ s.progress }}%</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-gray-200">
+                      <div class="h-full bg-blue-600 transition-all duration-300" :style="{ width: s.progress + '%' }"></div>
+                    </div>
+                  </div>
+
                   <div v-if="s.tooltip?.tags?.length" class="tl-card-tags">
                     <span v-for="(t, i) in s.tooltip.tags" :key="i" class="tl-tag">{{ t }}</span>
                   </div>
+
+                  <div v-if="s.reasoning" class="mt-2 p-2 border-2 border-dashed border-gray-400 bg-gray-50 text-[11px] font-bold text-gray-700">
+                    <i class="fas fa-robot text-blue-600 mr-1"></i> AI 추천: {{ s.reasoning }}
+                  </div>
+
                   <textarea
                     v-model="memos[s.id]"
-                    class="tl-memo custom-scroll"
+                    class="tl-memo custom-scroll mt-2"
                     placeholder="메모를 입력하세요..."
                     rows="2"
                   />
@@ -145,7 +162,6 @@ function trackName(id)  { return store.getTrackById(id)?.name  || id }
 .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 .custom-scroll::-webkit-scrollbar { display: none; }
 
-/* ★ 흐림(Blur) 효과 제거, 어둡고 강렬한 솔리드 배경 */
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 1000;
   background: rgba(0, 0, 0, 0.85);
@@ -156,7 +172,7 @@ function trackName(id)  { return store.getTrackById(id)?.name  || id }
 .modal-box {
   width: 100%; max-width: 680px; max-height: 88vh;
   background: var(--bg-base);
-  border: 2px solid var(--text-primary); border-radius: 0; /* 직각 */
+  border: 2px solid var(--text-primary); border-radius: 0;
   box-shadow: 12px 12px 0 var(--text-primary);
   display: flex; flex-direction: column; overflow: hidden;
 }
@@ -195,14 +211,14 @@ function trackName(id)  { return store.getTrackById(id)?.name  || id }
 .tl-line-top { min-height: 18px; }
 .tl-line-bottom { min-height: 10px; }
 .invisible { background: transparent !important; }
-.tl-dot { width: 12px; height: 12px; border-radius: 0; /* 직각 네모 점 */ flex-shrink: 0; position: relative; z-index: 1; border: 2px solid; }
+.tl-dot { width: 12px; height: 12px; border-radius: 0; flex-shrink: 0; position: relative; z-index: 1; border: 2px solid; }
 
 .tl-card {
   flex: 1; margin: 6px 0 10px 12px;
   background: var(--bg-surface);
   border: 2px solid var(--text-primary);
   border-left-width: 6px; border-radius: 0;
-  padding: 16px; display: flex; flex-direction: column; gap: 10px;
+  padding: 16px; display: flex; flex-direction: column; gap: 8px;
   box-shadow: 4px 4px 0 var(--border); transition: all 0.1s ease;
 }
 .tl-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--text-primary); background: var(--bg-base); }

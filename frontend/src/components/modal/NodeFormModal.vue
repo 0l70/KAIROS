@@ -113,6 +113,16 @@
               </div>
             </div>
 
+            <div class="form-group mt-2 p-4 border-2 border-gray-800 bg-gray-100">
+              <label class="form-label text-gray-800 mb-2">
+                <i class="fas fa-magic text-blue-600"></i> AI REASONING 
+                <span class="badge-optional border-gray-800 text-gray-800">READ-ONLY</span>
+              </label>
+              <p class="text-[13px] font-bold text-gray-600 leading-relaxed">
+                {{ localForm.reasoning || '사용자가 직접 생성한 일정입니다. (AI 추천 내역 없음)' }}
+              </p>
+            </div>
+
           </div>
 
           <div class="modal-footer">
@@ -146,7 +156,6 @@ const { schedules, allTracks, endedTracks } = storeToRefs(store)
 const localForm  = ref(defaultForm())
 const titleError = ref(false)
 
-// ★ 전역 클릭 감지로 드롭다운 닫기 (버그 해결)
 const isDropdownOpen = ref(false)
 const closeDropdown = () => { isDropdownOpen.value = false }
 
@@ -158,9 +167,20 @@ function selectTrack(id) {
   isDropdownOpen.value = false
 }
 
+// 폼 초기화 시 reasoning 필드 추가
 function defaultForm() {
   const t = new Date()
-  return { day: `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`, track: '', title: '', text: '', time: '09:00', tags: '', parentIds: [], childIds: [] }
+  return { 
+    day: `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`, 
+    track: '', 
+    title: '', 
+    text: '', 
+    time: '09:00', 
+    tags: '', 
+    parentIds: [], 
+    childIds: [],
+    reasoning: '' // 신규 필드 추가
+  }
 }
 
 const selectedTrackName = computed(() => { const t = allTracks.value.find(x => x.id === localForm.value.track); return t ? t.name : '' })
@@ -171,7 +191,12 @@ const monthMax = computed(() => { if (!localForm.value.day) return ''; const [y,
 
 watch(() => props.initialForm, (val) => {
   const base = defaultForm()
-  localForm.value = { ...base, ...val, parentIds: Array.isArray(val.parentIds) ? val.parentIds : (val.parentId ? [val.parentId] : []), childIds:  Array.isArray(val.childIds)  ? val.childIds  : (val.childId  ? [val.childId]  : []) }
+  localForm.value = { 
+    ...base, 
+    ...val, 
+    parentIds: Array.isArray(val.parentIds) ? val.parentIds : (val.parentId ? [val.parentId] : []), 
+    childIds:  Array.isArray(val.childIds)  ? val.childIds  : (val.childId  ? [val.childId]  : []) 
+  }
   titleError.value = false
 }, { immediate: true })
 
@@ -182,7 +207,15 @@ function handleSave() {
   if (!localForm.value.track) { alert('학습 트랙을 선택해주세요.'); return }
   if (!localForm.value.title.trim()) { titleError.value = true; return }
   const tags = localForm.value.tags.split(',').map(t => t.trim()).filter(Boolean)
-  emit('save', { day: localForm.value.day, track: localForm.value.track, text: localForm.value.text, tooltip: { title: localForm.value.title.trim(), time: localForm.value.time, tags }, parentIds: localForm.value.parentIds || [], childIds: localForm.value.childIds || [] })
+  emit('save', { 
+    day: localForm.value.day, 
+    track: localForm.value.track, 
+    text: localForm.value.text, 
+    tooltip: { title: localForm.value.title.trim(), time: localForm.value.time, tags }, 
+    parentIds: localForm.value.parentIds || [], 
+    childIds: localForm.value.childIds || [],
+    reasoning: localForm.value.reasoning // 저장 시 데이터 유지
+  })
 }
 </script>
 
