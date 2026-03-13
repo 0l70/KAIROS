@@ -59,7 +59,7 @@
         <a href="#" class="nav-anchor" :class="{ active: activeSection === 'cta' }" @click.prevent="scrollToSection('cta')"><i class="fas fa-rocket" /> JOIN NOW</a>
       </nav>
 
-      <section id="features" class="content-section">
+      <section id="features" class="content-section pt-gap">
         <div class="section-header anim-target reveal-up">
           <h2 class="section-title">CORE CAPABILITIES</h2>
           <p class="section-sub">카이로스만이 제공하는 압도적인 개발자 성장 도구</p>
@@ -93,7 +93,7 @@
         </div>
       </section>
 
-      <section id="workflow" class="content-section bg-inverted">
+      <section id="workflow" class="content-section bg-inverted pt-gap">
         <div class="section-header anim-target reveal-up">
           <h2 class="section-title">HOW IT WORKS</h2>
           <p class="section-sub">단 3단계로 끝나는 완벽한 성장 루프</p>
@@ -118,7 +118,7 @@
         </div>
       </section>
 
-      <section id="integration" class="content-section">
+      <section id="integration" class="content-section pt-gap">
         <div class="anim-target draw-line"></div>
         <div class="stat-grid">
           <div class="stat-item anim-target reveal-up">
@@ -137,7 +137,7 @@
         <div class="anim-target draw-line"></div>
       </section>
 
-      <section id="cta" class="bottom-cta">
+      <section id="cta" class="bottom-cta pt-gap">
         <h2 class="cta-title anim-target reveal-up">READY TO COMMIT?</h2>
         <p class="cta-desc anim-target reveal-up delay-1">더 이상 도구를 관리하는 데 시간을 낭비하지 마세요.<br>본질인 '개발'과 '학습'에 집중할 시간입니다.</p>
         <div class="anim-target reveal-up delay-2">
@@ -184,27 +184,27 @@ const footerCols = [
   { title: 'LEGAL',   items: ['Terms of Service', 'Privacy Policy'] }
 ]
 
-// 스크롤 및 옵저버 상태 관리
 const scrollContainer = ref(null)
 const activeSection = ref('')
 let observer = null
 
-// 스크롤 시 섹션 감지 (Scrollspy)
+// 스크롤 시 섹션 감지 (Scrollspy 로직 개선)
 const handleScroll = () => {
   if (!scrollContainer.value) return
   const sections = ['features', 'workflow', 'integration', 'cta']
   const containerTop = scrollContainer.value.getBoundingClientRect().top
   
-  // 헤더(64px) + 네비바(약 70px) + 여유(20px) = 154px 기준선
-  const offset = 154 
+  // 헤더(64) + 네비바(56) + 오차 허용치(30) = 150px
+  // 이 기준선을 통과한 가장 "마지막" 섹션이 active 되도록 덮어씌움
+  const triggerPoint = 150 
   let current = ''
 
   for (const id of sections) {
     const el = document.getElementById(id)
     if (el) {
       const rect = el.getBoundingClientRect()
-      // 섹션의 윗부분이 기준선을 지났고, 아랫부분은 아직 지나기 전이면 활성화
-      if (rect.top - containerTop <= offset && rect.bottom - containerTop > offset) {
+      // 섹션의 머리(top)가 네비바 바로 아래(triggerPoint)로 올라오면 선택
+      if (rect.top - containerTop <= triggerPoint) {
         current = id
       }
     }
@@ -212,12 +212,12 @@ const handleScroll = () => {
   activeSection.value = current
 }
 
-// 부드러운 스크롤 이동 (상단 짤림 방지)
+// 클릭 시 스크롤 이동
 const scrollToSection = (id) => {
   const el = document.getElementById(id)
   if (el && scrollContainer.value) {
-    // 헤더(64) + 네브바 높이를 정확히 빼서 최상단에 딱 맞물리도록 이동
-    const offset = 135 
+    // 헤더(64) + 네비바(56) 높이만큼 정확하게 빼서 스크롤 보정
+    const offset = 120 
     scrollContainer.value.scrollTo({
       top: el.offsetTop - offset,
       behavior: 'smooth'
@@ -226,7 +226,6 @@ const scrollToSection = (id) => {
 }
 
 onMounted(() => {
-  // 브루탈리즘 애니메이션 등장 옵저버
   observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -251,6 +250,7 @@ onUnmounted(() => {
 <style scoped>
 /* 기본 레이아웃 & 스크롤 */
 .landing-root {
+  position: relative; /* 중요: el.offsetTop 계산을 위한 기준점 설정 (오차 방지) */
   height: 100vh;
   overflow-y: auto; 
   overflow-x: hidden;
@@ -296,23 +296,24 @@ onUnmounted(() => {
 .landing-logo-text { font-weight: 900; font-size: 20px; letter-spacing: 0.15em; }
 .landing-header-actions { display: flex; gap: 12px; align-items: center; }
 
+/* 회색 그림자 적용 (#6b7280) */
 .btn-theme {
   width: 36px; height: 36px; border-radius: 0; background: transparent; border: 2px solid var(--text-primary);
   color: var(--text-primary); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: 0.1s;
 }
-.btn-theme:hover { background: var(--text-primary); color: var(--bg-base); transform: translate(-2px, -2px); box-shadow: 2px 2px 0 var(--text-primary); }
+.btn-theme:hover { background: var(--text-primary); color: var(--bg-base); transform: translate(-2px, -2px); box-shadow: 2px 2px 0 #6b7280; }
 
 .btn-login {
   padding: 8px 20px; font-size: 13px; border: 2px solid var(--text-primary); border-radius: 0; cursor: pointer; background: transparent;
   color: var(--text-primary); font-weight: 800; letter-spacing: 0.05em; transition: 0.1s;
 }
-.btn-login:hover { background: var(--bg-hover); transform: translate(-2px, -2px); box-shadow: 2px 2px 0 var(--text-primary); }
+.btn-login:hover { background: var(--bg-hover); transform: translate(-2px, -2px); box-shadow: 2px 2px 0 #6b7280; }
 
 .btn-signup {
   padding: 8px 20px; font-size: 13px; border: 2px solid var(--text-primary); border-radius: 0; cursor: pointer; font-weight: 900; letter-spacing: 0.05em;
   background: var(--text-primary); color: var(--bg-base); transition: 0.1s;
 }
-.btn-signup:hover { background: transparent; color: var(--text-primary); transform: translate(-2px, -2px); box-shadow: 2px 2px 0 var(--text-primary); }
+.btn-signup:hover { background: transparent; color: var(--text-primary); transform: translate(-2px, -2px); box-shadow: 2px 2px 0 #6b7280; }
 
 /* ── 히어로 ── */
 .hero-section {
@@ -320,27 +321,27 @@ onUnmounted(() => {
 }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border: 2px solid var(--text-primary);
-  color: var(--text-primary); font-size: 12px; font-weight: 900; letter-spacing: 0.1em; margin-bottom: 40px; box-shadow: 4px 4px 0 var(--text-primary);
+  color: var(--text-primary); font-size: 12px; font-weight: 900; letter-spacing: 0.1em; margin-bottom: 40px; box-shadow: 4px 4px 0 #6b7280;
 }
 .hero-title { font-size: clamp(52px, 8vw, 96px); font-weight: 900; line-height: 1.05; color: var(--text-primary); margin-bottom: 32px; letter-spacing: -0.02em; text-transform: uppercase; }
 .hero-desc { color: var(--text-muted); font-size: 18px; line-height: 1.6; font-weight: 600; max-width: 600px; margin-bottom: 56px; word-break: keep-all; }
 
 .hero-cta { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
-.btn-google { display: flex; align-items: center; gap: 12px; padding: 18px 32px; border: 2px solid var(--text-primary); cursor: pointer; background: var(--text-primary); color: var(--bg-base); font-weight: 900; font-size: 15px; letter-spacing: 0.05em; transition: 0.1s; box-shadow: 6px 6px 0 var(--text-primary); }
-.btn-google:hover { background: transparent; color: var(--text-primary); transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--text-primary); }
+.btn-google { display: flex; align-items: center; gap: 12px; padding: 18px 32px; border: 2px solid var(--text-primary); cursor: pointer; background: var(--text-primary); color: var(--bg-base); font-weight: 900; font-size: 15px; letter-spacing: 0.05em; transition: 0.1s; box-shadow: 6px 6px 0 #6b7280; }
+.btn-google:hover { background: transparent; color: var(--text-primary); transform: translate(-2px, -2px); box-shadow: 8px 8px 0 #6b7280; }
 .google-icon { width: 24px; height: 24px; border: 2px solid var(--bg-base); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; transition: border-color 0.1s; }
 .btn-google:hover .google-icon { border-color: var(--text-primary); }
 
-.btn-intro { display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 18px 32px; border: 2px solid var(--text-primary); cursor: pointer; background: transparent; color: var(--text-primary); font-size: 15px; font-weight: 900; transition: 0.1s; letter-spacing: 0.05em; box-shadow: 4px 4px 0 var(--text-primary); }
-.btn-intro:hover { background: var(--bg-hover); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--text-primary); }
+.btn-intro { display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 18px 32px; border: 2px solid var(--text-primary); cursor: pointer; background: transparent; color: var(--text-primary); font-size: 15px; font-weight: 900; transition: 0.1s; letter-spacing: 0.05em; box-shadow: 4px 4px 0 #6b7280; }
+.btn-intro:hover { background: var(--bg-hover); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #6b7280; }
 
-/* ── STICKY 네비게이션 (Scrollspy 스타일) ── */
+/* ── STICKY 네비게이션 ── */
 .feature-strip-nav {
   position: sticky; top: 64px; z-index: 90; 
   display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;
   background: var(--bg-surface);
   border-bottom: 2px solid var(--text-primary);
-  padding: 16px 24px; width: 100%;
+  padding: 12px 24px; width: 100%; height: 56px;
 }
 .nav-anchor {
   display: flex; align-items: center; gap: 8px;
@@ -349,18 +350,18 @@ onUnmounted(() => {
   padding: 6px 16px; border: 2px solid transparent; transition: all 0.2s;
 }
 .nav-anchor:hover { border-color: var(--border); }
-/* 활성화(Active) 상태 스타일 */
 .nav-anchor.active {
   background: var(--text-primary);
   color: var(--bg-base);
   border-color: var(--text-primary);
   transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--border);
+  box-shadow: 4px 4px 0 #6b7280;
 }
 
 /* ── 공통 섹션 스타일 ── */
-.content-section { padding: 120px 40px; display: flex; flex-direction: column; align-items: center; max-width: 1200px; margin: 0 auto; width: 100%; }
-.bottom-cta { padding: 160px 40px; text-align: center; background: var(--bg-base); border-top: 2px solid var(--text-primary); display: flex; flex-direction: column; align-items: center; }
+.pt-gap { padding-top: 100px; padding-bottom: 120px; }
+.content-section { display: flex; flex-direction: column; align-items: center; max-width: 1200px; margin: 0 auto; width: 100%; padding-left: 40px; padding-right: 40px; }
+.bottom-cta { text-align: center; background: var(--bg-base); border-top: 2px solid var(--text-primary); display: flex; flex-direction: column; align-items: center; }
 
 .bg-inverted { max-width: 100%; background: var(--text-primary); color: var(--bg-base); }
 .bg-inverted .section-title, .bg-inverted .section-sub { color: var(--bg-base); }
@@ -371,8 +372,8 @@ onUnmounted(() => {
 
 /* ── 4. FEATURES ── */
 .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; width: 100%; }
-.bento-card { border: 2px solid var(--text-primary); background: var(--bg-surface); padding: 40px; display: flex; flex-direction: column; gap: 24px; box-shadow: 6px 6px 0 var(--text-primary); transition: 0.15s; }
-.bento-card:hover { transform: translate(-4px, -4px); box-shadow: 10px 10px 0 var(--text-primary); background: var(--bg-base); }
+.bento-card { border: 2px solid var(--text-primary); background: var(--bg-surface); padding: 40px; display: flex; flex-direction: column; gap: 24px; box-shadow: 6px 6px 0 #6b7280; transition: 0.15s; }
+.bento-card:hover { transform: translate(-4px, -4px); box-shadow: 10px 10px 0 #6b7280; background: var(--bg-base); }
 .bento-large { grid-column: span 2; flex-direction: row; align-items: center; gap: 48px; position: relative; overflow: hidden; }
 
 .bento-icon { font-size: 40px; color: var(--text-primary); }
@@ -397,8 +398,8 @@ onUnmounted(() => {
 /* ── 7. CTA ── */
 .cta-title { font-size: 56px; font-weight: 900; letter-spacing: 0.05em; margin-bottom: 24px; color: var(--text-primary); }
 .cta-desc { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-bottom: 48px; line-height: 1.6; }
-.btn-giant { display: flex; align-items: center; gap: 16px; padding: 24px 48px; background: var(--text-primary); color: var(--bg-base); border: 4px solid var(--text-primary); font-size: 20px; font-weight: 900; letter-spacing: 0.1em; cursor: pointer; box-shadow: 12px 12px 0 var(--text-primary); transition: 0.1s; }
-.btn-giant:hover { background: transparent; color: var(--text-primary); transform: translate(-4px, -4px); box-shadow: 16px 16px 0 var(--text-primary); }
+.btn-giant { display: flex; align-items: center; gap: 16px; padding: 24px 48px; background: var(--text-primary); color: var(--bg-base); border: 4px solid var(--text-primary); font-size: 20px; font-weight: 900; letter-spacing: 0.1em; cursor: pointer; box-shadow: 12px 12px 0 #6b7280; transition: 0.1s; }
+.btn-giant:hover { background: transparent; color: var(--text-primary); transform: translate(-4px, -4px); box-shadow: 16px 16px 0 #6b7280; }
 
 /* ── 8. 푸터 ── */
 .landing-footer { background: var(--bg-surface); color: var(--text-primary); border-top: 2px solid var(--text-primary); padding: 64px 40px 32px; flex-shrink: 0; }

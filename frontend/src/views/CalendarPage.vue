@@ -204,6 +204,16 @@
     <NodeFormModal v-model="isScheduleModalOpen" :mode="modalMode" :initial-form="modalInitialForm" :edit-node-id="editTargetId" @save="handleSaveSchedule" />
     <BranchManageModal v-model="isTrackModalOpen" />
     <DayDetailModal v-model="isDayDetailOpen" :day-str="dayDetailTarget" :schedules="store.getSchedulesForDay(dayDetailTarget)" @add-schedule="(d) => { isDayDetailOpen = false; openCreateModal(d) }" @edit-schedule="(s) => { isDayDetailOpen = false; openEditModal(s) }" @delete-schedule="(id) => { handleDeleteSchedule(id) }" />
+
+    <Teleport to="body">
+      <div v-if="playEntryAnim" class="fly-overlay-entry">
+        <div class="flying-curriculum-part2">
+          <i class="fas fa-calendar-check" />
+          <span>일정 생성 중...</span>
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -257,10 +267,12 @@ const interactionState = ref({ hovered: null, clicked: null })
 const edgeTooltip = ref({ visible: false, x: 0, baseY: 0, translateX: '-50%', translateY: '-100%', edge: null })
 const edgeRemote = ref({ visible: false, x: 0, baseY: 0, translateX: '-50%', translateY: '-100%', edge: null })
 
+// 🚀 플라잉 애니메이션 상태
+const playEntryAnim = ref(false)
+
 function onTrackHover(trackId) { interactionState.value.hovered = trackId ? { type: 'track', data: trackId } : null }
 function onNodeHover(schedule) { interactionState.value.hovered = schedule ? { type: 'node', data: schedule } : null }
 
-// ★ 선 호버링 좌표 및 화면 이탈 방지 처리
 function onEdgeHover(edge, e) {
   if (edge) {
     interactionState.value.hovered = { type: 'edge', data: edge }
@@ -270,7 +282,6 @@ function onEdgeHover(edge, e) {
       let translateY = '-100%';
       let yOffset = -15;
 
-      // 마우스가 화면 상단(헤더부근)에 너무 가까우면 무조건 툴팁을 아래로 띄움
       if (e.clientY < 300) {
         translateY = '0%';
         yOffset = 15;
@@ -284,7 +295,6 @@ function onEdgeHover(edge, e) {
   }
 }
 
-// ★ 선 클릭 리모트 모달 좌표 및 화면 이탈 방지 처리 (호버 창과 똑같은 공식 사용)
 function onEdgeClick(edge, e) {
   if (edge) {
     interactionState.value.clicked = { type: 'edge', data: edge }
@@ -296,7 +306,6 @@ function onEdgeClick(edge, e) {
       let translateY = '-100%';
       let yOffset = -15;
 
-      // 리모트 모달은 높이가 기므로 기준을 더 넉넉하게 잡음
       if (e.clientY < 380) {
         translateY = '0%';
         yOffset = 15;
@@ -584,7 +593,21 @@ async function handleDeleteSchedule(id) { if (!confirm('이 일정을 삭제하�
 function deleteSelected() { if (!selectedSchedules.value.length) return; if (!confirm(`선택한 ${selectedSchedules.value.length}개의 일정을 삭제하시겠습니까?`)) return; selectedSchedules.value.forEach(id => store.deleteSchedule(id)); selectedSchedules.value = [] }
 
 watch(currentYear, (y) => store.fetchHolidaysForYear(y))
-onMounted(() => { store.fetchHolidaysForYear(currentYear.value); nextTick(() => initMonthScroll()) })
+onMounted(() => { 
+  store.fetchHolidaysForYear(currentYear.value); 
+  nextTick(() => initMonthScroll());
+
+  // 🚀 온보딩 페이지에서 넘어왔는지 확인 후 파트 2 애니메이션 재생
+  if (sessionStorage.getItem('playCalendarEntryAnim') === 'true') {
+    sessionStorage.removeItem('playCalendarEntryAnim')
+    playEntryAnim.value = true
+    
+    // 파트 2 비행 애니메이션(0.7초)이 완전히 끝나는 0.8초 시점에 뷰에서 제거
+    setTimeout(() => {
+      playEntryAnim.value = false
+    }, 800)
+  }
+})
 
 let _touchStartX = 0; let wheelTimeout = null;
 function onWeekTouchStart(e) { _touchStartX = e.touches[0].clientX }
@@ -720,4 +743,20 @@ function onWeekWheel(e) {
 @keyframes slideInFromRight { from { transform: translateX(6%); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }
 .slide-in-left  { animation: slideInFromLeft  0.2s ease-out both; }
 .slide-in-right { animation: slideInFromRight 0.2s ease-out both; }
+
+/* 🚀 플라잉 애니메이션 Part 2 (사이드바로 쏙 날아감) */
+.fly-overlay-entry { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
+.flying-curriculum-part2 {
+  position: absolute; display: flex; align-items: center; gap: 12px; padding: 24px 36px;
+  background: var(--text-primary); color: var(--bg-base); font-size: 20px; font-weight: 900;
+  border: 4px solid var(--text-primary); white-space: nowrap; font-family: 'Space Grotesk', 'Escoredream', sans-serif;
+  /* Part 1에서 끝난 상태(압축된 알약)와 동일한 모습으로 시작 */
+  top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.45); border-radius: 100px;
+  animation: flyIntoNav 0.7s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+}
+@keyframes flyIntoNav {
+  0% { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.45); opacity: 1; box-shadow: 0 0 40px rgba(0,0,0,0.3); }
+  20% { top: 48%; left: 50%; transform: translate(-50%, -50%) scale(0.45); opacity: 1; box-shadow: 0 0 40px rgba(0,0,0,0.3); } /* 살짝 떴다가 */
+  100% { top: 120px; left: 32px; transform: translate(-50%, -50%) scale(0.05); opacity: 0; } /* 사이드바 캘린더 아이콘 위치로 흡수 */
+}
 </style>
