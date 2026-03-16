@@ -216,47 +216,47 @@ const togglePosition = (value) => {
 .pb-xl { padding-bottom: 64px; }
 
 /* Panels & Shadows */
-.brutal-panel { background: var(--bg-surface); border: 2px solid var(--text-primary); border-radius: 0; transition: transform 0.1s, box-shadow 0.1s; }
-.shadow-normal { box-shadow: 6px 6px 0 #6b7280; }
+.brutal-panel { background: transparent; border: 1px solid var(--border); border-radius: 0; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; }
+.shadow-normal { box-shadow: none; }
 
-.btn-back { background: transparent; border: none; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 0; margin-bottom: 24px; transition: color 0.1s; font-family: inherit; }
-.btn-back:hover { color: var(--text-primary); }
+.btn-back { background: transparent; border: none; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 0; margin-bottom: 24px; transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; }
+.btn-back:hover { color: var(--text-primary); transform: translateX(-4px); }
 
 /* Forms */
 .form-label { display: block; font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
 .form-desc { font-size: 12px; color: var(--text-muted); font-weight: 600; margin: 0; line-height: 1.5; }
 
-.brutal-select-btn { padding: 12px 16px; background: var(--bg-base); border: 2px solid var(--border); color: var(--text-muted); font-size: 13px; font-weight: 700; text-align: left; cursor: pointer; transition: all 0.1s; font-family: inherit; border-radius: 6px; }
-.brutal-select-btn:hover { background: var(--bg-surface); border-color: var(--text-primary); color: var(--text-primary); }
-.brutal-select-btn.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); font-weight: 900; }
+.brutal-select-btn { padding: 12px 16px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; font-weight: 700; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; border-radius: 0; }
+.brutal-select-btn:hover { background: var(--bg-hover); border-color: var(--text-primary); color: var(--text-primary); }
+.brutal-select-btn.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); font-weight: 800; }
 
-.brutal-pill-btn { padding: 6px 16px; border: 2px solid var(--border); background: var(--bg-surface); color: var(--text-muted); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border-radius: 24px; transition: all 0.1s; display: inline-flex; align-items: center; justify-content: center; }
-.brutal-pill-btn:hover { border-color: var(--text-primary); color: var(--text-primary); }
+.brutal-pill-btn { padding: 8px 16px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border-radius: 40px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; justify-content: center; }
+.brutal-pill-btn:hover { border-color: var(--text-primary); color: var(--text-primary); background: var(--bg-hover); }
 .brutal-pill-btn.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); font-weight: 800; }
 
-.tech-tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-base); border: 2px solid var(--text-primary); font-size: 12px; font-weight: 800; color: var(--text-primary); border-radius: 4px; }
-.tech-tag button { background: transparent; border: none; color: var(--text-muted); padding: 0; cursor: pointer; font-size: 12px; line-height: 1; transition: color 0.1s; }
-.tech-tag button:hover { color: #ef4444; }
+.tech-tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: transparent; border: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--text-primary); border-radius: 40px; }
+.tech-tag button { background: transparent; border: none; color: var(--text-muted); padding: 0; cursor: pointer; font-size: 12px; line-height: 1; transition: color 0.3s; }
+.tech-tag button:hover { color: var(--text-primary); }
 
-.brutal-input { padding: 10px 16px; border: 2px solid var(--text-primary); background: var(--bg-base); color: var(--text-primary); font-size: 13px; font-weight: 700; outline: none; font-family: inherit; transition: box-shadow 0.1s; }
-.brutal-input:focus { box-shadow: 4px 4px 0 #6b7280; }
+.brutal-input { padding: 10px 16px; border: 1px solid var(--border); background: transparent; color: var(--text-primary); font-size: 13px; font-weight: 700; outline: none; font-family: inherit; transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 0; }
+.brutal-input:focus { border-color: var(--text-primary); }
 
-.brutal-scope-btn { padding: 16px; background: var(--bg-base); border: 2px solid var(--border); text-align: left; cursor: pointer; transition: all 0.1s; font-family: inherit; border-radius: 6px; }
-.brutal-scope-btn:hover { border-color: var(--text-primary); background: var(--bg-surface); }
-.brutal-scope-btn.active { border-color: var(--text-primary); background: var(--bg-surface); }
+.brutal-scope-btn { padding: 16px; background: transparent; border: 1px solid var(--border); text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; border-radius: 0; }
+.brutal-scope-btn:hover { border-color: var(--text-primary); background: var(--bg-hover); }
+.brutal-scope-btn.active { border-color: var(--text-primary); background: transparent; }
 
-.checkbox { width: 18px; height: 18px; border: 2px solid var(--border); background: var(--bg-base); display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.1s; font-size: 10px; color: var(--bg-base); }
+.checkbox { width: 18px; height: 18px; border: 1px solid var(--border); background: transparent; display: flex; align-items: center; justify-content: center; border-radius: 0; transition: all 0.3s; font-size: 10px; color: var(--bg-base); }
 .checkbox.checked { border-color: var(--text-primary); background: var(--text-primary); }
 
 .scope-label { font-size: 14px; font-weight: 800; color: var(--text-primary); }
 .scope-desc { font-size: 12px; font-weight: 600; color: var(--text-muted); margin: 0; padding-left: 26px; line-height: 1.4; }
 
-.btn-primary-small { background: var(--text-primary); color: var(--bg-base); border: 2px solid var(--text-primary); padding: 10px 16px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.1s; font-family: inherit; }
-.btn-primary-small:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 #6b7280; }
+.btn-primary-small { background: transparent; color: var(--text-primary); border: 1px solid var(--text-primary); padding: 10px 16px; border-radius: 40px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; }
+.btn-primary-small:hover { background: var(--text-primary); color: var(--bg-base); }
 
-.btn-primary { background: var(--text-primary); color: var(--bg-base); border: 2px solid var(--text-primary); padding: 16px; font-size: 14px; font-weight: 900; cursor: pointer; transition: all 0.1s; font-family: inherit; letter-spacing: 0.05em; text-align: center; }
-.btn-primary:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #6b7280; }
+.btn-primary { background: transparent; color: var(--text-primary); border: 1px solid var(--text-primary); border-radius: 40px; padding: 16px; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; letter-spacing: 0.1em; text-align: center; }
+.btn-primary:hover { background: var(--text-primary); color: var(--bg-base); }
 
-.btn-outline { background: var(--bg-base); color: var(--text-primary); border: 2px solid var(--text-primary); padding: 16px; font-size: 14px; font-weight: 900; cursor: pointer; transition: all 0.1s; font-family: inherit; letter-spacing: 0.05em; text-align: center; }
-.btn-outline:hover { background: var(--text-primary); color: var(--bg-base); transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #6b7280; }
+.btn-outline { background: transparent; color: var(--text-primary); border: 1px solid var(--border); border-radius: 40px; padding: 16px; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; letter-spacing: 0.1em; text-align: center; }
+.btn-outline:hover { background: var(--bg-hover); border-color: var(--text-primary); color: var(--text-primary); }
 </style>

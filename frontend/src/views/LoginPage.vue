@@ -86,15 +86,14 @@ function handleLogin() {
   max-width: 420px;
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 0; /* 직각 */
   padding: 48px 40px;
   display: flex;
   flex-direction: column;
   gap: 0;
-  animation: fadeIn 0.35s ease both;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -144,12 +143,11 @@ function handleLogin() {
   width: 100%;
   padding: 14px 16px;
   border: 1px solid var(--border);
-  border-radius: 0; /* 직각 */
   background: transparent;
   color: var(--text-primary);
   font-size: 14px;
-  font-family: 'Escoredream', sans-serif;
-  transition: border-color 0.15s;
+  font-family: inherit;
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
 }
 .form-input:focus {
@@ -173,15 +171,14 @@ function handleLogin() {
   width: 100%;
   padding: 16px;
   border: 1px solid var(--text-primary);
-  border-radius: 0; /* 직각 */
   background: var(--text-primary);
   color: var(--bg-base);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   cursor: pointer;
-  font-family: 'Space Grotesk', 'Escoredream', sans-serif;
-  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   margin-top: 8px;
 }
 .btn-primary:hover { 
@@ -211,38 +208,37 @@ function handleLogin() {
   width: 100%;
   padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 0; /* 직각 */
   background: transparent;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.05em;
   cursor: pointer;
-  font-family: 'Space Grotesk', 'Escoredream', sans-serif;
+  font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  transition: background 0.15s, color 0.15s;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-google:hover { 
-  background: var(--text-primary); 
-  color: var(--bg-base);
-}
-.btn-google:hover .google-icon {
-  border-color: var(--bg-base);
+  background: var(--bg-hover); 
+  border-color: var(--text-primary);
 }
 .google-icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 0; /* 직각 */
-  border: 1px solid var(--text-primary);
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
   background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
+  transition: border-color 0.3s;
+}
+.btn-google:hover .google-icon {
+  border-color: var(--text-primary);
 }
 
 .signup-link {
