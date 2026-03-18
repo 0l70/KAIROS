@@ -317,7 +317,7 @@ const scrollToSection = (id) => {
   const el = document.getElementById(id)
   if (el && scrollContainer.value) {
     scrollContainer.value.scrollTo({
-      top: el.offsetTop - 80,
+      top: el.offsetTop,
       behavior: 'smooth'
     })
   }
@@ -664,8 +664,8 @@ onUnmounted(() => {
 /* ──────────────────────────────
   SECTION LAYOUT BASICS
 ────────────────────────────── */
-.content-section { padding: 160px 40px; max-width: 1360px; margin: 0 auto; }
-@media (max-width: 768px) { .content-section { padding: 100px 24px; } }
+.content-section { padding: 90px 40px; max-width: 1360px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
+@media (max-width: 768px) { .content-section { padding: 80px 24px; min-height: 100vh; } }
 
 .section-label {
   font-size: 11px; font-weight: 800; letter-spacing: 0.22em;
@@ -790,7 +790,8 @@ onUnmounted(() => {
 ────────────────────────────── */
 .section-stats {
   display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
-  padding: 120px 80px; align-items: center;
+  padding: 80px 80px; align-items: center;
+  min-height: 100vh;
   border-top: 1px solid rgba(255,255,255,0.1);
   border-bottom: 1px solid rgba(255,255,255,0.1);
   background: #000;
@@ -832,8 +833,9 @@ onUnmounted(() => {
   CTA SECTION
 ────────────────────────────── */
 .section-cta {
-  padding: 180px 40px; text-align: center;
-  display: flex; flex-direction: column; align-items: center;
+  padding: 90px 40px; text-align: center;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
 }
 /* animated radial background */

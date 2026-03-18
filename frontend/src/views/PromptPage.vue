@@ -286,8 +286,8 @@ function sendPrompt() {
 .nav-btn:hover { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); }
 
 .prompt-filters { display: flex; gap: 6px; }
-.p-filter-btn { padding: 8px 16px; border: 1px solid var(--border); background: transparent; color: var(--text-primary); font-size: 12px; font-weight: 800; cursor: pointer; transition: 0.1s; display: flex; align-items: center; letter-spacing: 0.05em; }
-.p-filter-btn.active, .p-filter-btn:hover { border-color: var(--text-primary); box-shadow: 4px 4px 0 var(--text-primary); transform: translate(-2px, -2px); background: var(--bg-surface); }
+.p-filter-btn { padding: 8px 16px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s cubic-bezier(0.16,1,0.3,1); display: flex; align-items: center; letter-spacing: 0.05em; border-radius: 40px; }
+.p-filter-btn.active, .p-filter-btn:hover { border-color: var(--text-primary); color: var(--text-primary); background: var(--bg-hover); }
 .p-dot { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--border); margin-right: 6px; }
 
 /* 레이아웃 */
@@ -296,7 +296,7 @@ function sendPrompt() {
 
 .prompt-graph-title { padding: 20px; border-bottom: 2px solid var(--border); display: flex; align-items: center; }
 .ptl-header-tracks { display: flex; gap: 12px; width: 100%; overflow-x: auto; white-space: nowrap; }
-.ptl-header-track-badge { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 900; padding: 6px 12px; border: 2px solid; box-shadow: 4px 4px 0 currentColor; }
+.ptl-header-track-badge { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 900; padding: 5px 12px; border: 1px solid; border-radius: 40px; }
 .ptl-head-dot { width: 10px; height: 10px; border: 1px solid var(--bg-base); }
 
 .prompt-graph-inner { flex: 1; padding-bottom: 20px; }
@@ -329,8 +329,8 @@ function sendPrompt() {
 .v-graph-node { position: absolute; top: 16px; width: 14px; height: 14px; border: 2px solid var(--bg-base); z-index: 30; } /* 점을 네모 반듯하게 변경 */
 
 .v-graph-content { flex: 1; padding-left: 20px; }
-.v-graph-card { background: var(--bg-base); border: 2px solid; padding: 14px; box-shadow: 4px 4px 0 currentColor; transition: 0.1s; }
-.v-graph-row:hover .v-graph-card { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 currentColor; }
+.v-graph-card { background: transparent; border: 1px solid var(--border); padding: 14px; transition: all 0.2s cubic-bezier(0.16,1,0.3,1); border-radius: 0; }
+.v-graph-row:hover .v-graph-card { border-color: var(--text-primary); background: var(--bg-hover); }
 .v-graph-track-name { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
 .v-graph-title { font-size: 14px; font-weight: 800; margin-top: 8px; line-height: 1.4; color: var(--text-primary); }
 
@@ -348,15 +348,15 @@ function sendPrompt() {
 .prompt-msg { display: flex; flex-direction: column; gap: 6px; max-width: 75%; }
 .prompt-msg--user { align-self: flex-end; align-items: flex-end; }
 .prompt-msg--ai { align-self: flex-start; }
-.prompt-msg-bubble { padding: 14px 20px; font-size: 14px; font-weight: 600; line-height: 1.6; white-space: pre-wrap; word-break: break-word; border: 2px solid var(--text-primary); box-shadow: 4px 4px 0 var(--text-primary); }
+.prompt-msg-bubble { padding: 14px 20px; font-size: 14px; font-weight: 600; line-height: 1.6; white-space: pre-wrap; word-break: break-word; border: 1px solid var(--border); border-radius: 12px; }
 .prompt-msg--user .prompt-msg-bubble { background: var(--text-primary); color: var(--bg-base); }
 .prompt-msg--ai .prompt-msg-bubble { background: var(--bg-surface); color: var(--text-primary); }
 .prompt-msg-time { font-size: 11px; font-weight: 800; color: var(--text-muted); }
 
 .prompt-input-area { padding: 24px 32px; border-top: 2px solid var(--border); background: var(--bg-surface); display: flex; gap: 16px; }
-.prompt-textarea { flex: 1; background: var(--bg-base); border: 2px solid var(--text-primary); padding: 16px; font-size: 14px; font-weight: 600; resize: none; outline: none; color: var(--text-primary); transition: 0.1s; }
-.prompt-textarea:focus { box-shadow: 4px 4px 0 var(--text-primary); }
-.prompt-send-btn { padding: 0 32px; background: var(--text-primary); color: var(--bg-base); font-size: 16px; font-weight: 900; letter-spacing: 0.1em; border: 2px solid var(--text-primary); cursor: pointer; transition: 0.1s; }
-.prompt-send-btn:hover:not(:disabled) { background: transparent; color: var(--text-primary); box-shadow: 6px 6px 0 var(--text-primary); transform: translate(-2px, -2px); }
+.prompt-textarea { flex: 1; background: var(--bg-base); border: 1px solid var(--border); padding: 16px; font-size: 14px; font-weight: 600; resize: none; outline: none; color: var(--text-primary); transition: all 0.2s; border-radius: 0; }
+.prompt-textarea:focus { border-color: var(--text-primary); background: var(--bg-hover); }
+.prompt-send-btn { padding: 0 32px; background: var(--text-primary); color: var(--bg-base); font-size: 14px; font-weight: 900; letter-spacing: 0.1em; border: 1px solid var(--text-primary); cursor: pointer; transition: all 0.2s cubic-bezier(0.16,1,0.3,1); border-radius: 0; }
+.prompt-send-btn:hover:not(:disabled) { background: transparent; color: var(--text-primary); }
 .prompt-send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 </style>

@@ -1,8 +1,5 @@
 <template>
-  <div class="app-layout" :class="themeStore.isDark ? 'theme-dark' : 'theme-light'">
-    <div class="crt-scanlines"></div>
-    <div class="retro-dot-bg"></div>
-    
+  <div class="app-layout">
     <AppSidebar />
 
     <main class="main-content custom-scroll">
@@ -44,7 +41,7 @@
             <span v-for="d in ['SUN','MON','TUE','WED','THU','FRI','SAT']" :key="d" class="dow">{{ d }}</span>
           </div>
 
-          <div class="date-grid retro-panel-wrapper terminal-bg">
+          <div class="date-grid">
             <div
               v-for="cell in calendarCells" :key="cell.key"
               class="date-cell"
@@ -98,7 +95,7 @@
             <div class="activities-list">
               <div
                 v-for="ev in selectedDayEvents" :key="ev.id"
-                class="activity-card retro-panel retro-text-hover"
+                class="activity-card"
                 :class="{ 'activity-card--done': ev.done }"
                 style="padding: 12px; margin-bottom: 12px; width:100%; display:flex;"
                 @click.stop="toggleDone(ev.id)"
@@ -111,8 +108,8 @@
                   <div class="activity-time">{{ ev.time }}</div>
                 </div>
                 <button
-                  class="mech-key activity-check"
-                  :class="{ 'key-accent-3': ev.done }"
+                  class="activity-check"
+                  :class="{ 'check--done': ev.done }"
                   style="width: 32px; height: 32px; padding: 0;"
                 >
                   <i class="fas fa-check" v-if="ev.done"/>
@@ -237,7 +234,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import { useCalendarStore } from '@/stores/useCalendarStore'
 import { useThemeStore } from '@/stores/useThemeStore'
@@ -423,8 +420,9 @@ function doImport() { showImportModal.value = false }
 .activity-icon { width: 36px; height: 36px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .activity-name { font-size: 14px; font-weight: 800; }
 .activity-time { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 4px; font-family: monospace; }
-.activity-check { width: 28px; height: 28px; border: 2px solid var(--text-primary); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.1s; color: transparent; border-radius: 0; }
-.activity-check:hover { background: var(--bg-hover); }
+.activity-check { width: 32px; height: 32px; border: 1px solid var(--border); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: transparent; border-radius: 0; padding: 0; flex-shrink: 0; }
+.activity-check:hover { border-color: var(--text-primary); background: var(--bg-hover); }
+.activity-check.check--done { background: var(--text-primary); color: var(--bg-base) !important; border-color: var(--text-primary); }
 .activity-check--done { color: var(--bg-base) !important; border-color: var(--text-primary) !important; }
 
 .day-empty { padding: 40px 0; text-align: center; color: var(--text-muted); }
