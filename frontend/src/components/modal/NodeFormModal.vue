@@ -139,6 +139,7 @@
 <script setup>
 import { ref, reactive, watch, computed, onMounted, onUnmounted } from 'vue'
 import { useCalendarStore } from '@/stores/useCalendarStore'
+import EdgeConnectorSection from '@/components/modal/EdgeConnectorSection.vue'
 
 const props = defineProps({ modelValue: Boolean, mode: String, initialForm: Object, editNodeId: String })
 const emit = defineEmits(['update:modelValue', 'save'])

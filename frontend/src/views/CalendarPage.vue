@@ -658,6 +658,18 @@ function handleCellClick(dateStr) { if (selectedDay.value !== dateStr) activeToo
 function handleWeekCellClick(dateStr) { if (selectedDay.value !== dateStr) activeTooltipId.value = null; selectedDay.value = dateStr; interactionState.value.clicked = null; }
 function openDayDetailModal(dateStr) { dayDetailTarget.value = dateStr; isDayDetailOpen.value = true }
 function toggleTooltip(id) { activeTooltipId.value = activeTooltipId.value === id ? null : id; if (activeTooltipId.value) { const s = schedules.value.find(s => s.id === id); if (s) { selectedDay.value = s.day; focusedDay.value = s.day; interactionState.value.clicked = { type: 'node', data: s }; } } else { interactionState.value.clicked = null; } }
+function jumpToDate(date) {
+  const d = date instanceof Date ? date : parseDate(date)
+  const targetStr = toDateStr(d)
+  currentYear.value = d.getFullYear()
+  currentMonth.value = d.getMonth() + 1
+  focusedDay.value = targetStr
+  selectedDay.value = targetStr
+  anchorDate.value = new Date(d.getFullYear(), d.getMonth(), 1)
+  startOffsetWeeks.value = 12
+  endOffsetWeeks.value = 16
+  nextTick(() => scrollToDate(targetStr, 'smooth', 'center'))
+}
 
 async function handleSaveSchedule(payload) {
   const { parentIds, childIds, ...data } = payload

@@ -1,8 +1,5 @@
 <template>
-  <div class="app-layout" :class="themeStore.isDark ? 'theme-dark' : 'theme-light'">
-    <div class="crt-scanlines"></div>
-    <div class="retro-dot-bg"></div>
-
+  <div class="app-layout">
     <AppSidebar />
 
     <main class="main-content custom-scroll">
