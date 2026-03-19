@@ -3,20 +3,20 @@
     <div class="header-left">
       <div class="date-nav">
         <div class="date-text-wrap" ref="dateWrapRef">
-          <h2 class="date-text mech-key retro-text-hover" title="CHANGE DATE" @click="toggleDatePopover" style="padding: 6px 12px; margin: 0; font-size: 16px;">
+          <h2 class="date-text" title="CHANGE DATE" @click="toggleDatePopover" style="padding: 6px 12px; margin: 0; font-size: 16px;">
             {{ dateText }}
             <i class="fas" :class="isPopoverOpen ? 'fa-caret-up' : 'fa-caret-down'" style="margin-left: 8px; font-size: 14px;" />
           </h2>
 
           <Transition name="fade-pop">
-            <div v-if="isPopoverOpen" class="custom-date-popover retro-panel">
+            <div v-if="isPopoverOpen" class="custom-date-popover">
               <div class="popover-row">
                 <div class="custom-sel-wrap">
                   <div class="custom-sel-display" @click="toggleSelect('year')" :class="{ active: activeSelect === 'year' }">
                     {{ selYear }} <i class="fas fa-chevron-down sel-icon"></i>
                   </div>
                   <Transition name="drop-anim">
-                    <ul v-if="activeSelect === 'year'" class="custom-sel-list custom-scroll retro-panel">
+                    <ul v-if="activeSelect === 'year'" class="custom-sel-list custom-scroll">
                       <li v-for="y in yearOptions" :key="y" class="custom-sel-item" :class="{ selected: selYear === y }" @click="pickYear(y)">{{ y }}</li>
                     </ul>
                   </Transition>
@@ -26,7 +26,7 @@
                     {{ selMonth }} <i class="fas fa-chevron-down sel-icon"></i>
                   </div>
                   <Transition name="drop-anim">
-                    <ul v-if="activeSelect === 'month'" class="custom-sel-list custom-scroll retro-panel">
+                    <ul v-if="activeSelect === 'month'" class="custom-sel-list custom-scroll">
                       <li v-for="m in 12" :key="m" class="custom-sel-item" :class="{ selected: selMonth === m }" @click="pickMonth(m)">{{ m }}</li>
                     </ul>
                   </Transition>
@@ -36,7 +36,7 @@
                     {{ selDay }} <i class="fas fa-chevron-down sel-icon"></i>
                   </div>
                   <Transition name="drop-anim">
-                    <ul v-if="activeSelect === 'day'" class="custom-sel-list custom-scroll retro-panel">
+                    <ul v-if="activeSelect === 'day'" class="custom-sel-list custom-scroll">
                       <li v-for="d in daysInSelectedMonth" :key="d" class="custom-sel-item" :class="{ selected: selDay === d }" @click="pickDay(d)">{{ d }}</li>
                     </ul>
                   </Transition>
@@ -101,11 +101,6 @@
       <button class="btn-manage" @click="$emit('open-track-modal')">
         <i class="fas fa-layer-group" /><span>MANAGE</span>
       </button>
-
-      <RouterLink to="/study-calendar" class="btn-study-cal">
-        <i class="fas fa-bolt" />
-        <span>STUDY LOG</span>
-      </RouterLink>
     </div>
   </header>
 </template>
@@ -132,6 +127,17 @@ function pickYear(y) { selYear.value = y; activeSelect.value = null; }
 function pickMonth(m) { selMonth.value = m; if (selDay.value > daysInSelectedMonth.value) selDay.value = daysInSelectedMonth.value; activeSelect.value = null; }
 function pickDay(d) { selDay.value = d; activeSelect.value = null; }
 function applyCustomDate() { emit('jump-to-date', new Date(selYear.value, selMonth.value - 1, selDay.value)); isPopoverOpen.value = false; activeSelect.value = null; }
+
+const legendPanelStyle = computed(() => {
+  if (!legendBtnRef.value) return {};
+  const rect = legendBtnRef.value.getBoundingClientRect();
+  return {
+    top: `${rect.bottom + window.scrollY + 8}px`,
+    left: `${rect.left + window.scrollX - 220}px`, // Shift left to avoid being cut off
+    zIndex: 9999
+  };
+});
+
 function handleClickOutside(e) { if (isPopoverOpen.value && dateWrapRef.value && !dateWrapRef.value.contains(e.target)) { isPopoverOpen.value = false; activeSelect.value = null; } }
 
 onMounted(() => { document.addEventListener('click', handleClickOutside); document.addEventListener('click', onDocClick, true) })
@@ -141,11 +147,11 @@ onUnmounted(() => { document.removeEventListener('click', handleClickOutside); d
 <style scoped>
 .calendar-header {
   height: 64px;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid var(--border);
   background: var(--bg-surface);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px;
-  flex-shrink: 0; z-index: 30;
+  flex-shrink: 0; z-index: 200;
   gap: 12px; font-family: 'Space Grotesk', 'Escoredream', system-ui, sans-serif;
 }
 .custom-sel-display:hover, .custom-sel-display.active { border-color: var(--accent); }
@@ -175,8 +181,8 @@ onUnmounted(() => { document.removeEventListener('click', handleClickOutside); d
 
 .custom-date-popover {
   position: absolute; top: 100%; left: 0; margin-top: 8px;
-  background: var(--bg-base); border: 2px solid var(--text-primary);
-  border-radius: 0; padding: 20px; box-shadow: 6px 6px 0 var(--text-primary);
+  background: var(--bg-base); border: 1px solid var(--border);
+  padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 100; display: flex; flex-direction: column; gap: 16px;
 }
 
@@ -197,9 +203,9 @@ onUnmounted(() => { document.removeEventListener('click', handleClickOutside); d
 .custom-sel-list {
   position: absolute; top: calc(100% + 6px); left: 0; width: 100%;
   max-height: 200px; overflow-y: auto; overflow-x: hidden;
-  background: var(--bg-base); border: 2px solid var(--text-primary);
-  border-radius: 0; padding: 6px; z-index: 110;
-  box-shadow: 4px 4px 0 var(--text-primary); list-style: none; margin: 0;
+  background: var(--bg-base); border: 1px solid var(--border);
+  padding: 6px; z-index: 110;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); list-style: none; margin: 0;
 }
 .custom-sel-item {
   padding: 8px 10px; font-size: 12px; border-radius: 0; cursor: pointer;
@@ -209,7 +215,7 @@ onUnmounted(() => { document.removeEventListener('click', handleClickOutside); d
 .custom-sel-item.selected { background: var(--text-primary); color: var(--bg-base); }
 
 .btn-pop-confirm { width: 100%; background: var(--text-primary); color: var(--bg-base); border: none; padding: 12px; border-radius: 0; font-size: 13px; font-weight: 900; letter-spacing: 0.1em; cursor: pointer; transition: all 0.15s; }
-.btn-pop-confirm:hover { background: transparent; color: var(--text-primary); border: 2px solid var(--text-primary); }
+.btn-pop-confirm:hover { background: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--text-primary); }
 
 .nav-controls { display: flex; align-items: center; gap: 6px; }
 .nav-btn { width: 34px; height: 34px; border: 1px solid var(--border); background: transparent; border-radius: 0; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.1s; }
@@ -230,24 +236,24 @@ onUnmounted(() => { document.removeEventListener('click', handleClickOutside); d
 }
 .btn-manage:hover, .btn-legend-toggle:hover, .btn-legend-toggle--open { background: var(--text-primary); color: var(--bg-base); }
 
-.btn-study-cal { border: 2px solid var(--text-primary); box-shadow: 3px 3px 0 var(--text-primary); }
-.btn-study-cal:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--text-primary); background: transparent; color: var(--text-primary); }
+.btn-study-cal { border: 1px solid var(--text-primary); }
+.btn-study-cal:hover { background: var(--text-primary); color: var(--bg-base); }
 
 /* 모달 */
 .legend-panel-teleport {
   position: absolute; z-index: 9999;
-  background: var(--bg-base); border: 2px solid var(--text-primary);
-  border-radius: 0; padding: 20px; 
+  background: var(--bg-base); border: 1px solid var(--border);
+  padding: 20px;
   width: max-content; min-width: 320px;
-  box-shadow: 6px 6px 0 var(--text-primary);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
   display: flex; flex-direction: column; gap: 16px;
   font-family: 'Space Grotesk', 'Escoredream', system-ui, sans-serif;
 }
 .legend-panel-title {
   display: flex; justify-content: space-between; align-items: center;
-  font-size: 14px; font-weight: 900; letter-spacing: 0.1em; color: var(--text-primary);
-  border-bottom: 2px solid var(--text-primary); padding-bottom: 12px;
+  font-size: 12px; font-weight: 900; letter-spacing: 0.1em; color: var(--text-muted);
+  border-bottom: 1px solid var(--border); padding-bottom: 12px;
 }
-.legend-panel-close { background: none; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer; transition: 0.1s; }
-.legend-panel-close:hover { transform: scale(1.1); }
+.legend-panel-close { background: none; border: 1px solid var(--border); color: var(--text-faint); font-size: 10px; cursor: pointer; transition: all 0.15s; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+.legend-panel-close:hover { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); }
 </style>

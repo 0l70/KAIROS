@@ -14,7 +14,7 @@
 
         <div class="flex-col gap-lg pb-xl">
           <!-- Linked Accounts -->
-          <div v-for="acc in accounts" :key="acc.name" class="brutal-panel p-0 shadow-normal overflow-hidden">
+          <div v-for="acc in accounts" :key="acc.name" class="base-panel p-0 shadow-normal overflow-hidden">
             <!-- Header -->
             <div class="panel-header flex-between p-md pb-sm border-b">
               <div class="flex-align gap-md">
@@ -59,7 +59,7 @@
           </div>
 
           <!-- Google Calendar notice -->
-          <div class="brutal-panel p-md shadow-normal account-notice">
+          <div class="base-panel p-md shadow-normal account-notice">
             <div class="flex-start gap-md">
               <div class="icon-box warning shrink-0">
                 <i class="fas fa-exclamation-triangle" />
@@ -80,7 +80,7 @@
           </div>
 
           <!-- Info note -->
-          <div class="info-note brutal-panel shadow-none">
+          <div class="info-note base-panel shadow-none">
             <div class="flex-start gap-md">
               <i class="fas fa-info-circle text-muted mt-xs text-sm shrink-0" />
               <p class="text-sm text-muted font-bold lh-lg m-0">
@@ -137,7 +137,7 @@ const accounts = [
 .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 .custom-scroll::-webkit-scrollbar { display: none; }
 
-.page-header { display: flex; align-items: center; padding: 20px 32px; border-bottom: 2px solid var(--text-primary); background: var(--bg-surface); position: sticky; top: 0; z-index: 10; }
+.page-header { display: flex; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-surface); position: sticky; top: 0; z-index: 10; }
 .header-title { font-size: 16px; font-weight: 900; letter-spacing: 0.1em; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
 
 .content-inner { padding: 48px 32px; width: 100%; }
@@ -182,7 +182,7 @@ const accounts = [
 .font-bold { font-weight: 800; }
 
 /* Panels & Shadows */
-.brutal-panel { background: transparent; border: 1px solid var(--border); border-radius: 0; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; }
+.base-panel { background: transparent; border: 1px solid var(--border); border-radius: 0; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; }
 .shadow-normal { box-shadow: none; }
 .shadow-none { box-shadow: none; }
 

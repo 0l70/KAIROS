@@ -2,7 +2,7 @@
   <div class="auth-root">
     
     <div class="global-stepper-wrap">
-      <div class="brutal-stepper">
+      <div class="page-stepper">
         <div class="step active">1. 계정 연동</div>
         <div class="step">2. 사전 설문</div>
         <div class="step">3. 데이터 분석</div>
@@ -11,6 +11,11 @@
     </div>
 
     <div class="auth-card custom-scroll">
+      <div class="header-top">
+        <button class="btn-back" @click="$router.push('/login')">
+          <i class="fas fa-arrow-left" /> BACK
+        </button>
+      </div>
       <div class="auth-header">
         <div class="auth-icon"><i class="fas fa-plug" /></div>
         <h2>ACCOUNT LINKING</h2>
@@ -100,18 +105,28 @@ const canProceed = computed(() => isGoogleConnected.value && isGithubConnected.v
 .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 .custom-scroll::-webkit-scrollbar { display: none; }
 
-/* 비율 보정: 스텝퍼 상단 여백 최소화 */
 .global-stepper-wrap { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 640px; padding: 0 24px; z-index: 100; }
-.brutal-stepper { display: flex; gap: 8px; width: 100%; }
-.brutal-stepper .step { 
-  flex: 1; text-align: center; padding: 12px 4px; border: 1px solid var(--border); 
-  background: var(--bg-surface); color: var(--text-muted); 
-  font-size: 13px; font-weight: 700; font-family: inherit; 
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; 
+.page-stepper { display: flex; gap: 0; width: 100%; border: 1px solid var(--border); overflow: hidden; }
+.page-stepper .step {
+  flex: 1; text-align: center; padding: 10px 4px;
+  background: var(--bg-surface); color: var(--text-muted);
+  font-size: 12px; font-weight: 700; font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap;
+  border-right: 1px solid var(--border);
 }
-.brutal-stepper .step.active { border-color: var(--text-primary); background: var(--text-primary); color: var(--bg-base); }
-.brutal-stepper .step.done { border-color: var(--border-mid); color: var(--text-primary); background: transparent; }
-@media (max-width: 640px) { .brutal-stepper .step { font-size: 11px; padding: 8px 2px; } }
+.page-stepper .step:last-child { border-right: none; }
+.page-stepper .step.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); }
+.page-stepper .step.done { color: var(--text-primary); background: transparent; }
+@media (max-width: 640px) { .page-stepper .step { font-size: 10px; padding: 8px 2px; } }
+
+.header-top { margin-bottom: 24px; }
+.btn-back {
+  background: transparent; border: 1px solid var(--border);
+  font-weight: 800; font-size: 11px; color: var(--text-muted);
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.1em;
+  padding: 8px 14px; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-back:hover { border-color: var(--text-primary); color: var(--text-primary); background: var(--bg-hover); }
 
 .auth-header { text-align: center; margin-bottom: 32px; }
 .auth-icon { width: 48px; height: 48px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 16px; background: transparent; color: var(--text-primary); }

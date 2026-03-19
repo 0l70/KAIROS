@@ -14,14 +14,14 @@
 
         <div class="flex-col gap-lg pb-xl">
           <!-- Current Job -->
-          <div class="brutal-panel p-md shadow-normal">
+          <div class="base-panel p-md shadow-normal">
             <label class="form-label">현재 직업</label>
             <p class="form-desc">현재 상태에 맞는 추천 난이도와 활동 구성이 반영됩니다</p>
             <div class="grid-2 col-gap gap-sm mt-md">
               <button
                 v-for="option in jobOptions"
                 :key="option"
-                class="brutal-select-btn"
+                class="choice-btn"
                 :class="{ 'active': job === option }"
                 @click="job = option"
               >
@@ -31,14 +31,14 @@
           </div>
 
           <!-- Desired Positions -->
-          <div class="brutal-panel p-md shadow-normal">
+          <div class="base-panel p-md shadow-normal">
             <label class="form-label">희망 포지션</label>
             <p class="form-desc">복수 선택이 가능하며, 추천 커리큘럼 방향 설정에 활용됩니다</p>
             <div class="flex-wrap gap-sm mt-md">
               <button
                 v-for="pos in positionOptions"
                 :key="pos"
-                class="brutal-pill-btn"
+                class="pill-btn"
                 :class="{ 'active': positions.includes(pos) }"
                 @click="togglePosition(pos)"
               >
@@ -48,7 +48,7 @@
           </div>
 
           <!-- Tech Stacks -->
-          <div class="brutal-panel p-md shadow-normal">
+          <div class="base-panel p-md shadow-normal">
             <label class="form-label">기술 스택</label>
             <p class="form-desc">관심 기술을 입력하면 추천에 반영됩니다</p>
             
@@ -64,7 +64,7 @@
                 v-model="newTag"
                 @keydown.enter="addTag"
                 placeholder="기술명 입력 후 Enter"
-                class="brutal-input flex-1"
+                class="text-input flex-1"
               />
               <button class="btn-primary-small" @click="addTag">
                 <i class="fas fa-plus" /> 추가
@@ -73,14 +73,14 @@
           </div>
 
           <!-- Scope -->
-          <div class="brutal-panel p-md shadow-normal">
+          <div class="base-panel p-md shadow-normal">
             <label class="form-label">연동 정보 범위 선택</label>
             <p class="form-desc">추천과 분석에 포함할 활동 유형을 선택하세요</p>
             <div class="grid-2 col-gap gap-sm mt-md">
               <button
                 v-for="s in scopeOptions"
                 :key="s.value"
-                class="brutal-scope-btn"
+                class="scope-btn"
                 :class="{ 'active': selectedScopes.includes(s.value) }"
                 @click="toggleScope(s.value)"
               >
@@ -96,7 +96,7 @@
           </div>
 
           <!-- Schedule Range -->
-          <div class="brutal-panel p-md shadow-normal">
+          <div class="base-panel p-md shadow-normal">
             <label class="form-label">일정 반영 범위</label>
             <p class="form-desc">
               커리큘럼 제작 시 개발/공부/취준 외 내용도 고려할까요?<br />
@@ -104,14 +104,14 @@
             </p>
             <div class="flex-align gap-sm mt-md">
               <button
-                class="brutal-select-btn flex-1"
+                class="choice-btn flex-1"
                 :class="{ 'active': scheduleInclusion === 'yes' }"
                 @click="scheduleInclusion = 'yes'"
               >
                 예
               </button>
               <button
-                class="brutal-select-btn flex-1"
+                class="choice-btn flex-1"
                 :class="{ 'active': scheduleInclusion === 'no' }"
                 @click="scheduleInclusion = 'no'"
               >
@@ -189,7 +189,7 @@ const togglePosition = (value) => {
 .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 .custom-scroll::-webkit-scrollbar { display: none; }
 
-.page-header { display: flex; align-items: center; padding: 20px 32px; border-bottom: 2px solid var(--text-primary); background: var(--bg-surface); position: sticky; top: 0; z-index: 10; }
+.page-header { display: flex; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-surface); position: sticky; top: 0; z-index: 10; }
 .header-title { font-size: 16px; font-weight: 900; letter-spacing: 0.1em; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
 
 .content-inner { padding: 48px 32px; width: 100%; }
@@ -216,7 +216,7 @@ const togglePosition = (value) => {
 .pb-xl { padding-bottom: 64px; }
 
 /* Panels & Shadows */
-.brutal-panel { background: transparent; border: 1px solid var(--border); border-radius: 0; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; }
+.base-panel { background: transparent; border: 1px solid var(--border); border-radius: 0; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; }
 .shadow-normal { box-shadow: none; }
 
 .btn-back { background: transparent; border: none; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 0; margin-bottom: 24px; transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; }
@@ -226,24 +226,24 @@ const togglePosition = (value) => {
 .form-label { display: block; font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
 .form-desc { font-size: 12px; color: var(--text-muted); font-weight: 600; margin: 0; line-height: 1.5; }
 
-.brutal-select-btn { padding: 12px 16px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; font-weight: 700; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; border-radius: 0; }
-.brutal-select-btn:hover { background: var(--bg-hover); border-color: var(--text-primary); color: var(--text-primary); }
-.brutal-select-btn.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); font-weight: 800; }
+.choice-btn { padding: 12px 16px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; font-weight: 700; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; border-radius: 0; }
+.choice-btn:hover { background: var(--bg-hover); border-color: var(--text-primary); color: var(--text-primary); }
+.choice-btn.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); font-weight: 800; }
 
-.brutal-pill-btn { padding: 8px 16px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border-radius: 40px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; justify-content: center; }
-.brutal-pill-btn:hover { border-color: var(--text-primary); color: var(--text-primary); background: var(--bg-hover); }
-.brutal-pill-btn.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); font-weight: 800; }
+.pill-btn { padding: 8px 16px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border-radius: 40px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; justify-content: center; }
+.pill-btn:hover { border-color: var(--text-primary); color: var(--text-primary); background: var(--bg-hover); }
+.pill-btn.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); font-weight: 800; }
 
 .tech-tag { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: transparent; border: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--text-primary); border-radius: 40px; }
 .tech-tag button { background: transparent; border: none; color: var(--text-muted); padding: 0; cursor: pointer; font-size: 12px; line-height: 1; transition: color 0.3s; }
 .tech-tag button:hover { color: var(--text-primary); }
 
-.brutal-input { padding: 10px 16px; border: 1px solid var(--border); background: transparent; color: var(--text-primary); font-size: 13px; font-weight: 700; outline: none; font-family: inherit; transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 0; }
-.brutal-input:focus { border-color: var(--text-primary); }
+.text-input { padding: 10px 16px; border: 1px solid var(--border); background: transparent; color: var(--text-primary); font-size: 13px; font-weight: 700; outline: none; font-family: inherit; transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 0; }
+.text-input:focus { border-color: var(--text-primary); }
 
-.brutal-scope-btn { padding: 16px; background: transparent; border: 1px solid var(--border); text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; border-radius: 0; }
-.brutal-scope-btn:hover { border-color: var(--text-primary); background: var(--bg-hover); }
-.brutal-scope-btn.active { border-color: var(--text-primary); background: transparent; }
+.scope-btn { padding: 16px; background: transparent; border: 1px solid var(--border); text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; border-radius: 0; }
+.scope-btn:hover { border-color: var(--text-primary); background: var(--bg-hover); }
+.scope-btn.active { border-color: var(--text-primary); background: transparent; }
 
 .checkbox { width: 18px; height: 18px; border: 1px solid var(--border); background: transparent; display: flex; align-items: center; justify-content: center; border-radius: 0; transition: all 0.3s; font-size: 10px; color: var(--bg-base); }
 .checkbox.checked { border-color: var(--text-primary); background: var(--text-primary); }

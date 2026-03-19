@@ -1,8 +1,5 @@
 <template>
   <div class="app-layout" @click="handleBackdropClick" :class="themeStore.isDark ? 'theme-dark' : 'theme-light'">
-    <div class="crt-scanlines"></div>
-    <div class="retro-dot-bg"></div>
-
     <AppSidebar />
 
     <main class="main-content">
@@ -20,7 +17,7 @@
       />
 
       <div v-if="currentView === 'month'" class="calendar-area">
-        <div ref="calendarWrapper" class="calendar-wrapper retro-panel">
+        <div ref="calendarWrapper" class="calendar-wrapper">
           <div class="calendar-header-row grid-cols-7 month-dow-header">
             <div v-for="(d, i) in DAY_LABELS" :key="d" class="day-header"
               :class="{ 'day-header--sat': i===6, 'day-header--sun': i===0 }">
@@ -49,7 +46,28 @@
                 @hover-node="onNodeHover"
               />
             </div>
-            <canvas ref="lineCanvas" class="line-canvas" />
+            <svg 
+              v-if="store.showConnections" 
+              ref="lineSvg" 
+              class="line-svg" 
+              :width="svgSize.w" 
+              :height="svgSize.h" 
+              @click.self="closeRemote"
+            >
+              <path
+                v-for="conn in activeConnections"
+                :key="conn.id"
+                :d="conn.path"
+                :stroke="conn.color"
+                class="conn-path"
+                :class="{ 
+                  'is-dimmed': store.lowIntensityLines && !isEdgeHighlighted(conn.data) && !interactionState.clicked && !interactionState.hovered 
+                }"
+                @click.stop="onEdgeClick(conn.data, $event)"
+                @mouseenter="onEdgeHover(conn.data, $event)"
+                @mouseleave="onEdgeHover(null)"
+              />
+            </svg>
           </div>
         </div>
 
@@ -63,7 +81,7 @@
       </div>
 
       <div v-else-if="currentView === 'week'" class="calendar-area">
-        <div ref="calendarWrapper" class="week-wrapper custom-scroll retro-panel"
+        <div ref="calendarWrapper" class="week-wrapper custom-scroll"
           @wheel.passive="onWeekWheel"
           @touchstart.passive="onWeekTouchStart"
           @touchend.passive="onWeekTouchEnd">
@@ -75,7 +93,7 @@
               <span class="week-col-label">{{ DAY_LABELS[idx] }}</span>
               <span class="week-col-date" :class="{ 'is-today text-accent-1': day === todayStr }">
                 {{ dateOf(day) }}
-                <span v-if="day === todayStr" class="week-today-tag retro-badge">TODAY</span>
+                <span v-if="day === todayStr" class="week-today-tag">TODAY</span>
               </span>
             </div>
           </div>
@@ -96,7 +114,7 @@
               <div
                 v-for="(track, tIdx) in sortedAllTracks"
                 :key="track.id"
-                class="week-lane-label retro-badge"
+                class="week-lane-label"
                 :class="{ 'week-lane-label--highlight': track.isHighlight }"
                 :style="{ top: getWeekLaneY(track.id) + 'px', color: track.color, borderColor: track.color }"
                 @mouseenter="onTrackHover(track.id)"
@@ -108,7 +126,27 @@
               </div>
             </div>
 
-            <canvas ref="lineCanvas" class="line-canvas" />
+            <svg 
+              v-if="store.showConnections" 
+              class="line-svg" 
+              :width="svgSize.w" 
+              :height="svgSize.h" 
+              @click.self="closeRemote"
+            >
+              <path
+                v-for="conn in activeConnections"
+                :key="conn.id"
+                :d="conn.path"
+                :stroke="conn.color"
+                class="conn-path"
+                :class="{ 
+                  'is-dimmed': store.lowIntensityLines && !isEdgeHighlighted(conn.data) && !interactionState.clicked && !interactionState.hovered
+                }"
+                @click.stop="onEdgeClick(conn.data, $event)"
+                @mouseenter="onEdgeHover(conn.data, $event)"
+                @mouseleave="onEdgeHover(null)"
+              />
+            </svg>
 
             <template v-for="(day, colIdx) in weekDays" :key="`nodes-col-${colIdx}`">
               <WeekGraphNode
@@ -121,6 +159,7 @@
                 :is-dimmed="dimmedNodeIds.has(s.id)"
                 @hover="onNodeHover"
                 @edit="openEditModal"
+                @select="toggleTooltip(s.id)"
               />
             </template>
           </div>
@@ -184,20 +223,26 @@
           <button class="er-close" @click.stop="closeRemote"><i class="fas fa-times"/></button>
         </div>
         <div class="er-body">
-          <div class="er-node" @click.stop="jumpToNode(edgeRemote.edge.from)">
+          <div class="er-node">
             <div class="er-node-color" :style="{ background: store.getTrackById(edgeRemote.edge.from.track)?.color }"></div>
             <div class="er-node-info">
               <div class="er-node-day">{{ formatNodeDate(edgeRemote.edge.from.day) }}</div>
               <div class="er-node-title">{{ edgeRemote.edge.from.tooltip?.title || edgeRemote.edge.from.text }}</div>
             </div>
+            <button class="btn-er-jump" @click.stop="jumpToNode(edgeRemote.edge.from)">
+              <i class="fas fa-location-arrow" /> JUMP
+            </button>
           </div>
           <div class="er-arrow"><i class="fas fa-arrow-down"/></div>
-          <div class="er-node" @click.stop="jumpToNode(edgeRemote.edge.to)">
+          <div class="er-node">
             <div class="er-node-color" :style="{ background: store.getTrackById(edgeRemote.edge.to.track)?.color }"></div>
             <div class="er-node-info">
               <div class="er-node-day">{{ formatNodeDate(edgeRemote.edge.to.day) }}</div>
               <div class="er-node-title">{{ edgeRemote.edge.to.tooltip?.title || edgeRemote.edge.to.text }}</div>
             </div>
+            <button class="btn-er-jump" @click.stop="jumpToNode(edgeRemote.edge.to)">
+              <i class="fas fa-location-arrow" /> JUMP
+            </button>
           </div>
         </div>
       </div>
@@ -256,7 +301,9 @@ const currentScrollY = ref(0)
 const calendarWrapper = ref(null)
 const monthScrollBody = ref(null)
 const weekGraphZone = ref(null)
-const lineCanvas = ref(null)
+const lineSvg = ref(null)
+const svgSize = ref({ w: 0, h: 0 })
+const activeConnections = ref([])
 const weekSlideDir = ref(null)
 const isScheduleModalOpen = ref(false)
 const isTrackModalOpen = ref(false)
@@ -351,6 +398,15 @@ function jumpToNode(node) {
 function getShortTrackName(name) { return name ? name.trim().split(' ')[0] : ''; }
 function formatNodeDate(dateStr) { const [y, m, d] = dateStr.split('-').map(Number); return `${m}월 ${d}일`; }
 
+function isEdgeHighlighted(edge) {
+  const { hovered, clicked } = interactionState.value;
+  const active = clicked || hovered;
+  if (!active) return false;
+  if (active.type === 'edge') return active.data.from.id === edge.from.id && active.data.to.id === edge.to.id;
+  if (active.type === 'node') return edge.from.id === active.data.id || edge.to.id === active.data.id;
+  return false;
+}
+
 const dimmedNodeIds = computed(() => {
   const ids = new Set()
   const { hovered, clicked } = interactionState.value
@@ -379,77 +435,69 @@ const dimmedNodeIds = computed(() => {
 })
 
 // ============================================================================
-// 💡 완벽하게 최적화된 캔버스 드로잉 로직 (좌표 오차 원천 차단)
+// 💡 SVG 기반 연결선 렌더링 (인터랙션 및 성능 최적화)
 // ============================================================================
-const drawLines = () => {
-  if (!lineCanvas.value) return;
-  const ctx = lineCanvas.value.getContext('2d');
-  if (!ctx) return;
-  
-  let scrollEl;
-  if (currentView.value === 'month') scrollEl = monthScrollBody.value;
-  else scrollEl = weekGraphZone.value;
+const updateConnections = () => {
+  let scrollEl = currentView.value === 'month' ? monthScrollBody.value : weekGraphZone.value;
   if (!scrollEl) return;
 
-  // 캔버스 크기를 스크롤 가능한 전체 영역 크기로 맞춤
-  lineCanvas.value.width = scrollEl.scrollWidth;
-  lineCanvas.value.height = scrollEl.scrollHeight;
-  ctx.clearRect(0, 0, lineCanvas.value.width, lineCanvas.value.height);
-
+  svgSize.value = { w: scrollEl.scrollWidth, h: scrollEl.scrollHeight };
+  
   const scrollRect = scrollEl.getBoundingClientRect();
   const offsetTop = scrollRect.top - scrollEl.scrollTop;
   const offsetLeft = scrollRect.left - scrollEl.scrollLeft;
 
+  const newConns = [];
   store.connections.forEach(conn => {
     const fromNode = document.getElementById(`node-${conn.from}`);
     const toNode = document.getElementById(`node-${conn.to}`);
     if (fromNode && toNode) {
       const sFrom = store.schedules.find(s => s.id === conn.from);
       const sTo = store.schedules.find(s => s.id === conn.to);
-      if (!sFrom || !sTo) return;
-      if (hiddenTracks.value.has(sFrom.track) || hiddenTracks.value.has(sTo.track)) return;
+      if (!sFrom || !sTo || hiddenTracks.value.has(sFrom.track) || hiddenTracks.value.has(sTo.track)) return;
       
       const track = store.getTrackById(sTo.track);
       const fRect = fromNode.getBoundingClientRect();
       const tRect = toNode.getBoundingClientRect();
 
-      let x1 = fRect.left + fRect.width / 2 - offsetLeft;
-      let y1 = fRect.bottom - offsetTop;
-      let x2 = tRect.left + tRect.width / 2 - offsetLeft;
-      let y2 = tRect.top - offsetTop;
+      const x1 = fRect.left + fRect.width / 2 - offsetLeft;
+      const y1 = fRect.bottom - offsetTop;
+      const x2 = tRect.left + tRect.width / 2 - offsetLeft;
+      const y2 = tRect.top - offsetTop;
 
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      
+      let d = "";
       if (currentView.value === 'week') {
         const midY = (y1 + y2) / 2;
-        ctx.bezierCurveTo(x1, midY, x2, midY, x2, y2);
+        d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
       } else {
         const midX = (x1 + x2) / 2;
-        ctx.bezierCurveTo(midX, y1, midX, y2, x2, y2);
+        d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
       }
 
-      ctx.strokeStyle = track?.color || '#9ca3af';
-      ctx.lineWidth = 2;
-      ctx.globalAlpha = 0.7;
-      ctx.stroke();
+      newConns.push({
+        id: `${conn.from}-${conn.to}`,
+        path: d,
+        color: track?.color || '#9ca3af',
+        data: { ...conn, from: sFrom, to: sTo, color: track?.color }
+      });
     }
   });
+  activeConnections.value = newConns;
 };
 
-const requestDraw = () => { requestAnimationFrame(drawLines); };
+const requestUpdate = () => { requestAnimationFrame(updateConnections); };
 
 onMounted(() => {
   store.fetchHolidaysForYear(currentYear.value); 
   nextTick(() => initMonthScroll());
-  window.addEventListener('resize', requestDraw);
-  setTimeout(requestDraw, 300);
+  window.addEventListener('resize', requestUpdate);
+  setTimeout(requestUpdate, 300);
 });
 
-onBeforeUnmount(() => { window.removeEventListener('resize', requestDraw); });
+onBeforeUnmount(() => { window.removeEventListener('resize', requestUpdate); });
 
 watch([currentView, currentYear, currentMonth, focusedDay, hiddenTracks, interactionState], () => {
-  nextTick(() => { setTimeout(requestDraw, 50); });
+  nextTick(() => { setTimeout(requestUpdate, 50); });
 }, { deep: true });
 // ============================================================================
 
@@ -588,7 +636,11 @@ function navigate(dir) {
     const d = parseDate(focusedDay.value)
     if (dir === 'prev') d.setDate(d.getDate() - 7)
     else if (dir === 'next') d.setDate(d.getDate() + 7)
-    else { focusedDay.value = todayStr; return }
+    else { 
+      focusedDay.value = todayStr; 
+      nextTick(() => scrollToDate(todayStr, 'smooth', 'center'));
+      return; 
+    }
     weekSlideDir.value = dir; focusedDay.value = toDateStr(d); currentMonth.value = d.getMonth() + 1; currentYear.value = d.getFullYear()
   }
 }
@@ -683,7 +735,12 @@ function deleteSelected() { if (!selectedSchedules.value.length) return; if (!co
 watch(currentYear, (y) => store.fetchHolidaysForYear(y))
 onMounted(() => { 
   store.fetchHolidaysForYear(currentYear.value); 
-  nextTick(() => initMonthScroll());
+  nextTick(() => {
+    initMonthScroll();
+    setTimeout(() => {
+      scrollToDate(todayStr, 'smooth', 'center');
+    }, 100);
+  });
 
   // 🚀 온보딩 페이지에서 넘어왔는지 확인 후 파트 2 애니메이션 재생
   if (sessionStorage.getItem('playCalendarEntryAnim') === 'true') {
@@ -715,8 +772,8 @@ function onWeekWheel(e) {
 .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 /* ── 🎨 테마 변수 ── */
-.theme-light { --k-bg: #F4F0EB; --k-housing: #E6DFD3; --k-key-bg: #FFFFFF; --k-key-border: #1A1A1A; --k-key-shadow: #1A1A1A; --k-border-main: #1A1A1A; --bg-base: #F4F0EB; --bg-surface: #E6DFD3; --bg-elevated: #FFFFFF; --border: #1A1A1A; --border-mid: #1A1A1A; --text-primary: #1A1A1A; --text-secondary: #333333; --text-muted: #555555; --text-faint: #777777; --accent: #E53935; --today-bg: rgba(229, 57, 53, 0.1); --sun-color: #E53935; --sat-color: #1E88E5; --k-acc-1-bg: #E53935; --k-acc-1-shadow: #B71C1C; --k-acc-2-bg: #1E88E5; --k-acc-2-shadow: #1565C0; --k-acc-3-bg: #43A047; --k-acc-3-shadow: #2E7D32; }
-.theme-dark { --k-bg: #1A1A1A; --k-housing: #2C2C2C; --k-key-bg: #3D3D3D; --k-key-border: #000000; --k-key-shadow: #000000; --k-border-main: #000000; --bg-base: #1A1A1A; --bg-surface: #2C2C2C; --bg-elevated: #3D3D3D; --border: #000000; --border-mid: #000000; --text-primary: #F0F0F0; --text-secondary: #CCCCCC; --text-muted: #999999; --text-faint: #666666; --accent: #FF5252; --today-bg: rgba(255, 82, 82, 0.15); --sun-color: #FF5252; --sat-color: #448AFF; --k-acc-1-bg: #FF5252; --k-acc-1-shadow: #D50000; --k-acc-2-bg: #448AFF; --k-acc-2-shadow: #2962FF; --k-acc-3-bg: #69F0AE; --k-acc-3-shadow: #00E676; }
+.theme-light { --k-bg: #FFFFFF; --k-housing: #F5F5F7; --k-key-bg: #FFFFFF; --k-key-border: #E5E5E7; --k-key-shadow: rgba(0,0,0,0.05); --k-border-main: #E5E5E7; --bg-base: #FFFFFF; --bg-surface: #F5F5F7; --bg-elevated: #FFFFFF; --border: #E5E5E7; --border-mid: #D1D1D6; --text-primary: #1D1D1F; --text-secondary: #424245; --text-muted: #86868B; --text-faint: #A1A1A6; --accent: #007AFF; --today-bg: rgba(0, 122, 255, 0.05); --sun-color: #FF3B30; --sat-color: #007AFF; --k-acc-1-bg: #FF3B30; --k-acc-1-shadow: #D70015; --k-acc-2-bg: #007AFF; --k-acc-2-shadow: #0040DD; --k-acc-3-bg: #34C759; --k-acc-3-shadow: #248A3D; }
+.theme-dark { --k-bg: #000000; --k-housing: #1C1C1E; --k-key-bg: #2C2C2E; --k-key-border: #3A3A3C; --k-key-shadow: rgba(0,0,0,0.3); --k-border-main: #3A3A3C; --bg-base: #000000; --bg-surface: #1C1C1E; --bg-elevated: #2C2C2E; --border: #3A3A3C; --border-mid: #48484A; --text-primary: #F5F5F7; --text-secondary: #A1A1A6; --text-muted: #86868B; --text-faint: #636366; --accent: #0A84FF; --today-bg: rgba(10, 132, 255, 0.15); --sun-color: #FF453A; --sat-color: #0A84FF; --k-acc-1-bg: #FF453A; --k-acc-1-shadow: #D70015; --k-acc-2-bg: #0A84FF; --k-acc-2-shadow: #0040DD; --k-acc-3-bg: #32D74B; --k-acc-3-shadow: #248A3D; }
 
 /* ── 공통 ── */
 .calendar-area { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; background: var(--bg-base); }
@@ -724,35 +781,39 @@ function onWeekWheel(e) {
 
 /* ── 월간 뷰 전용 ── */
 .month-scroll-body { flex: 1; position: relative; z-index: 10; scroll-behavior: auto; }
-.calendar-header-row { display: grid; border-bottom: 2px solid var(--text-primary); background: var(--bg-surface); z-index: 90; position: sticky; top: 0; }
+.calendar-header-row { display: grid; border-bottom: 1px solid var(--border-mid); background: var(--bg-surface); z-index: 90; position: sticky; top: 0; }
 .grid-cols-7 { grid-template-columns: repeat(7, 1fr); }
 .day-header { padding: 14px 0; text-align: center; font-size: 13px; font-weight: 900; color: var(--text-primary); letter-spacing: 0.05em; border-right: 1px solid var(--border); }
 .day-header:last-child { border-right: none; }
 .day-header--sat { color: #2563eb !important; }
 .day-header--sun { color: #dc2626 !important; }
-.line-canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; }
+.line-svg { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; }
+.conn-path { fill: none; stroke-width: 2.5; stroke-opacity: 0.6; pointer-events: stroke; cursor: pointer; transition: stroke-width 0.2s, stroke-opacity 0.2s, stroke-dasharray 0.3s; }
+.conn-path:hover, .conn-path.is-highlighted { stroke-width: 4; stroke-opacity: 1; }
+.conn-path.is-dimmed { stroke-opacity: 0.08; stroke-width: 1.5; }
 
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); position: relative; }
 
 /* ── Floating Action Bar ── */
 .floating-action-bar {
   position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
-  background: var(--text-primary); color: var(--bg-base); border: 2px solid var(--text-primary); border-radius: 0;
-  padding: 12px 24px; display: flex; align-items: center; gap: 16px;
-  box-shadow: 6px 6px 0 var(--border); z-index: 200; font-weight: 900; letter-spacing: 0.05em;
+  background: var(--text-primary); color: var(--bg-base); border: 1px solid var(--text-primary); border-radius: 40px;
+  padding: 10px 24px; display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 200; font-weight: 900; letter-spacing: 0.05em;
 }
 .floating-action-bar button {
-  background: transparent; color: var(--bg-base); border: 2px solid var(--bg-base);
-  padding: 6px 12px; font-weight: 900; cursor: pointer; border-radius: 0; transition: all 0.1s; letter-spacing: 0.05em;
+  background: transparent; color: var(--bg-base); border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 16px; font-weight: 900; cursor: pointer; border-radius: 40px; transition: all 0.2s; letter-spacing: 0.05em;
+  font-size: 11px;
 }
-.floating-action-bar button:hover { background: var(--bg-base); color: var(--text-primary); }
+.floating-action-bar button:hover { background: rgba(255,255,255,0.1); border-color: white; }
 
 /* ── 주간 뷰(Week View) ── */
 .week-wrapper { flex: 1; display: flex; flex-direction: column; position: relative; background: transparent; }
 .sticky-header { position: sticky; top: 0; z-index: 90; }
 .week-grid-cols { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 
-.week-col-header { padding: 18px 0 14px; text-align: center; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 6px; border-bottom: 2px solid var(--text-primary); }
+.week-col-header { padding: 18px 0 14px; text-align: center; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 6px; border-bottom: 1px solid var(--border-mid); }
 .week-col-header:last-child { border-right: none; }
 .week-col-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
 .week-col-date { font-size: 22px; font-weight: 900; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
@@ -765,8 +826,8 @@ function onWeekWheel(e) {
 .week-col-header:has(.is-today) .week-col-label,
 .week-col-header:has(.is-today) .week-col-date,
 .week-col-header:has(.is-today) .week-holiday-name { color: var(--bg-base) !important; }
-.week-col-header:has(.is-today) { background: var(--text-primary); color: var(--bg-base); }
-.week-today-tag { font-size: 9px; background: var(--text-primary); border: 1px solid var(--text-primary); padding: 4px 6px; color: var(--bg-base); font-weight: 900; letter-spacing: 0.05em; border-radius: 0; }
+.week-col-header:has(.is-today) { background: var(--bg-surface); color: var(--text-primary); }
+.week-today-tag { font-size: 10px; background: var(--text-primary); border: none; padding: 2px 8px; color: var(--bg-base); font-weight: 900; letter-spacing: 0.05em; border-radius: 40px; }
 
 /* 그래프 구역 */
 .week-graph-zone { position: relative; border-bottom: 2px solid var(--border); flex-shrink: 0; background: transparent; z-index: 10; }
@@ -778,17 +839,16 @@ function onWeekWheel(e) {
 /* 라벨 구역 */
 .week-lane-labels { position: absolute; inset: 0; pointer-events: none; z-index: 45; }
 .week-lane-label { 
-  position: absolute; left: 4px; transform: translateY(-50%); margin-top: 0; 
-  display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; 
-  border-radius: 0; border: 1.5px solid transparent; background: var(--bg-surface); 
-  font-size: 11px; font-weight: 800; color: var(--text-primary); 
-  cursor: pointer; transition: all 0.1s; pointer-events: auto; text-transform: uppercase;
-  max-width: calc((100% / 14) - 12px); 
+  position: absolute; left: 12px; transform: translateY(-50%); margin-top: 0; 
+  display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; 
+  border-radius: 40px; border: 1px solid var(--border); background: var(--bg-elevated); 
+  font-size: 10px; font-weight: 800; color: var(--text-primary); 
+  cursor: pointer; transition: all 0.2s cubic-bezier(0.16,1,0.3,1); pointer-events: auto; text-transform: uppercase;
+  max-width: calc((100% / 12) - 12px); 
 }
-.week-lane-label:hover { background: var(--text-primary); color: var(--bg-base) !important; z-index: 100; max-width: max-content; }
-.week-lane-label:hover .lane-name { color: var(--bg-base); }
-.lane-dot { width: 8px; height: 8px; border-radius: 0; border: 1px solid var(--bg-base); flex-shrink: 0; }
-.lane-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Space Grotesk', sans-serif; }
+.week-lane-label:hover { border-color: var(--text-primary); z-index: 100; max-width: max-content; transform: translateY(-50%) scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.lane-dot { width: 6px; height: 6px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+.lane-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Inter', sans-serif; }
 .lane-hl-badge { font-size: 9px; margin-left: 4px; flex-shrink: 0; }
 
 /* 하단 카드 존 */
@@ -808,26 +868,27 @@ function onWeekWheel(e) {
 @keyframes targetFlash { 0% { background-color: var(--text-primary); color: var(--bg-base); box-shadow: inset 0 0 0 4px var(--bg-base); } 100% { background-color: transparent; box-shadow: inset 0 0 0 0px transparent; } }
 :deep(.flash-target) { animation: targetFlash 0.8s ease-out; border-radius: 0; }
 
-/* ★ 툴팁 & 모달 통일 (여백 및 위치 문제 해결) */
-.edge-tooltip-popup { position: absolute; z-index: 80; pointer-events: none; background: var(--bg-base); border: 2px solid var(--text-primary); border-radius: 0; padding: 12px 16px; box-shadow: 4px 4px 0 var(--text-primary); display: flex; flex-direction: column; gap: 8px; min-width: max-content; white-space: nowrap; }
-.et-track { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; }
-.et-nodes { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
-.et-nodes i { color: var(--text-primary); font-size: 12px; }
+/* ★ 툴팁 & 모달 통일 */
+.edge-tooltip-popup { position: absolute; z-index: 80; pointer-events: none; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; min-width: max-content; white-space: nowrap; }
+.et-track { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+.et-nodes { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.et-nodes i { color: var(--text-muted); font-size: 11px; }
 
-.edge-remote-modal { position: absolute; z-index: 80; width: 260px; background: var(--bg-base); border: 2px solid var(--text-primary); border-radius: 0; box-shadow: 6px 6px 0 var(--text-primary); display: flex; flex-direction: column; overflow: hidden; }
-.er-header { padding: 14px 16px; background: transparent; border-bottom: 2px solid var(--text-primary); display: flex; justify-content: space-between; align-items: center; }
+.edge-remote-modal { position: absolute; z-index: 500; width: 280px; background: var(--bg-base); border: 1px solid var(--text-primary); box-shadow: 0 16px 48px rgba(0,0,0,0.15); display: flex; flex-direction: column; overflow: hidden; }
+.er-header { padding: 14px 16px; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .er-track-name { font-size: 13px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
-.er-close { background: none; border: none; color: var(--text-primary); font-size: 16px; cursor: pointer; transition: 0.1s; padding: 0 4px; line-height: 1; }
-.er-close:hover { transform: scale(1.1); }
-.er-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-.er-node { display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 0; border: 2px solid var(--border); background: transparent; cursor: pointer; transition: all 0.1s ease; }
-.er-node:hover { border-color: var(--text-primary); background: var(--text-primary); transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--border); }
-.er-node:hover .er-node-title, .er-node:hover .er-node-day { color: var(--bg-base); }
-.er-node-color { width: 10px; height: 10px; border-radius: 0; flex-shrink: 0; border: 2px solid var(--border); }
-.er-node-info { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 2px; }
-.er-node-day { font-size: 11px; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
-.er-node-title { font-size: 14px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.er-arrow { text-align: center; color: var(--text-primary); font-size: 16px; margin: 4px 0; }
+.er-close { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; transition: color 0.15s; padding: 0 4px; line-height: 1; }
+.er-close:hover { color: var(--text-primary); }
+.er-body { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+.er-node { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); background: var(--bg-base); transition: all 0.2s; }
+.er-node:hover { border-color: var(--text-primary); background: var(--bg-surface); }
+.er-node-color { width: 4px; height: 32px; border-radius: 2px; flex-shrink: 0; }
+.er-node-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.er-node-day { font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.05em; }
+.er-node-title { font-size: 13px; font-weight: 900; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.btn-er-jump { padding: 6px 10px; font-size: 10px; font-weight: 900; background: var(--text-primary); color: var(--bg-base); border: none; cursor: pointer; border-radius: 0; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+.btn-er-jump:hover { opacity: 0.8; transform: scale(1.05); }
+.er-arrow { display: flex; justify-content: center; color: var(--text-muted); font-size: 10px; margin: 4px 0; }
 
 @keyframes slideInFromLeft { from { transform: translateX(-6%); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }
 @keyframes slideInFromRight { from { transform: translateX(6%); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }

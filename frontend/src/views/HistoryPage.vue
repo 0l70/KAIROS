@@ -4,7 +4,7 @@
 
     <main class="main-content custom-scroll">
       <header class="page-header">
-        <div class="header-title"><i class="fas fa-history" /> HISTORY & GROWTH</div>
+        <div class="header-title"><i class="fas fa-history" /> HISTORY </div>
       </header>
 
       <div class="content-inner max-w-xl mx-auto">
@@ -49,7 +49,7 @@
                   v-model="store.keyword"
                   @focus="showSearchPanel = true"
                   class="search-input"
-                  :placeholder="showSearchPanel ? '키워드 입력' : '지난 최근 활동과 추천 기록을 검색할 수 있어요!'"
+                   :placeholder="showSearchPanel ? '키워드 입력' : '활동·추천 기록 검색'"
                 />
               </div>
 
@@ -129,21 +129,14 @@
             <div class="row-tags">
               <span v-for="tag in item.tags" :key="tag" class="small-tag"><i class="fas fa-tag text-[8px]" /> {{ tag }}</span>
             </div>
-            <div class="row-actions flex gap-sm h-full">
+            <div class="row-actions">
               <button 
-                class="btn-exclude flex-1 justify-center items-center" 
+                class="btn-exclude w-full flex justify-center items-center" 
                 :class="{ 'btn-restore': item.excluded }"
                 @click="store.toggleExclude(item.id)"
               >
                 <template v-if="item.excluded"><i class="fas fa-undo-alt" /> 제외 취소</template>
                 <template v-else><i class="fas fa-ban" /> 제외</template>
-              </button>
-              <button 
-                class="btn-delete flex-1"
-                @click="store.deleteItem(item.id)"
-                title="삭제"
-              >
-                <i class="fas fa-trash mb-0" />
               </button>
             </div>
           </div>
@@ -220,7 +213,7 @@ const monthOptions = computed(() => {
 .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 .custom-scroll::-webkit-scrollbar { display: none; }
 
-.page-header { display: flex; align-items: center; padding: 20px 32px; border-bottom: 2px solid var(--text-primary); background: var(--bg-surface); position: sticky; top: 0; z-index: 10; }
+.page-header { display: flex; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-surface); position: sticky; top: 0; z-index: 10; }
 .header-title { font-size: 16px; font-weight: 900; letter-spacing: 0.1em; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
 
 .content-inner { padding: 48px 32px; width: 100%; }
@@ -239,16 +232,16 @@ const monthOptions = computed(() => {
 .mb-md { margin-bottom: 24px; }
 .mb-lg { margin-bottom: 32px; }
 .mt-md { margin-top: 24px; }
-.p-md { padding: 24px; }
-.p-lg { padding: 32px; }
+.p-md { padding: 20px; }
+.p-lg { padding: 28px; }
 .p-0 { padding: 0 !important; }
-.px-md { padding-left: 24px; padding-right: 24px; }
+.px-md { padding-left: 20px; padding-right: 20px; }
 .mb-0 { margin-bottom: 0 !important; }
 .ml-auto { margin-left: auto; }
 .relative { position: relative; }
 .overflow-hidden { overflow: hidden; }
 
-.font-bold { font-weight: 800; }
+.font-bold { font-weight: 700; }
 .text-xs { font-size: 11px; }
 .text-muted { color: var(--text-muted); }
 .text-primary { color: var(--text-primary); }
@@ -256,10 +249,10 @@ const monthOptions = computed(() => {
 .text-\[10px\] { font-size: 10px; }
 .text-\[8px\] { font-size: 8px; }
 
-.brutal-panel { background: transparent; border: 1px solid var(--border); border-radius: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-.shadow-normal { box-shadow: none; border: 1px dashed var(--border); }
-.shadow-normal:hover { box-shadow: none; border-style: solid; border-color: var(--text-primary); background: var(--bg-hover);}
-.shadow-heavy { box-shadow: none; border-top: 1px solid var(--border); border-bottom: none; border-left: none; border-right: none;}
+.brutal-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.shadow-normal { box-shadow: none; border: 1px solid var(--border); }
+.shadow-normal:hover { border-color: var(--text-primary); background: var(--bg-hover);}
+.shadow-heavy { box-shadow: none; border: 1px solid var(--border); }
 
 /* Header Stats */
 .stat-item { display: flex; align-items: center; gap: 12px; }
@@ -276,7 +269,7 @@ const monthOptions = computed(() => {
 .filter-tag:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--text-primary);}
 .filter-tag.active { background: transparent; color: var(--text-primary); border-color: var(--text-primary); font-weight: 800; }
 
-.search-box { display: flex; align-items: center; gap: 12px; background: transparent; border: 1px solid var(--border); padding: 12px 16px; min-width: 320px; border-radius: 40px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.search-box { display: flex; align-items: center; gap: 12px; background: transparent; border: 1px solid var(--border); padding: 10px 16px; min-width: 240px; max-width: 320px; border-radius: 40px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
 .search-box.focused { border-color: var(--text-primary); background: var(--bg-hover); }
 .search-icon { font-size: 14px; color: var(--text-muted); flex-shrink: 0; }
 .search-input { width: 100%; border: none; background: transparent; font-size: 14px; color: var(--text-primary); outline: none; font-family: inherit; font-weight: 600; }
@@ -296,10 +289,10 @@ const monthOptions = computed(() => {
 .btn-text-muted:hover { color: var(--text-primary); background: var(--bg-hover); }
 
 /* Table */
-.table-header { display: grid; grid-template-columns: 100px minmax(0, 1.3fr) 100px 140px 220px; gap: 24px; background: transparent; border-bottom: 1px solid var(--border); padding: 16px 24px; font-size: 12px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;}
+.table-header { display: grid; grid-template-columns: 80px minmax(0, 1fr) 80px 120px 100px; gap: 20px; background: transparent; border-bottom: 1px solid var(--border); padding: 14px 24px; font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;}
 .empty-state { padding: 64px; text-align: center; color: var(--text-muted); font-size: 14px; font-weight: 700; border-bottom: 1px solid var(--border);}
 
-.table-row { display: grid; grid-template-columns: 100px minmax(0, 1.3fr) 100px 140px 220px; gap: 24px; padding: 24px; border-bottom: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); align-items: center; }
+.table-row { display: grid; grid-template-columns: 80px minmax(0, 1fr) 80px 120px 100px; gap: 20px; padding: 20px 24px; border-bottom: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); align-items: center; }
 .table-row:last-child { border-bottom: none; }
 .table-row:hover:not(.is-excluded) { background: var(--bg-hover); }
 .table-row.is-excluded { background: transparent; opacity: 0.4; }
@@ -308,22 +301,20 @@ const monthOptions = computed(() => {
 .table-row.is-excluded .row-date { color: var(--text-muted); opacity: 0.7; }
 
 .row-main { min-width: 0; }
-.row-title { font-size: 15px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; display: block; letter-spacing: 0.05em;}
+.row-title { font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; display: block; letter-spacing: 0.03em; line-height: 1.4; }
 .table-row.is-excluded .row-title { color: var(--text-muted); }
 
 .row-badge { background: transparent; border: 1px solid var(--border); color: var(--text-primary); padding: 4px 8px; font-size: 10px; font-weight: 800; border-radius: 40px; margin-left: 8px;}
-.row-desc { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; font-weight: 600; line-height: 1.6; }
+.row-desc { font-size: 13px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0; font-weight: 600; line-height: 1.6; }
 
 .type-badge { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--border); padding: 6px 12px; font-size: 11px; font-weight: 800; color: var(--text-primary); border-radius: 40px; }
 .row-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .small-tag { display: flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--border); padding: 6px 12px; font-size: 11px; font-weight: 700; color: var(--text-muted); border-radius: 40px; }
 
-.btn-exclude { flex: 1; text-align: center; background: transparent; border: 1px solid var(--border); padding: 10px 16px; font-size: 12px; font-weight: 800; color: var(--text-primary); cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; }
+.btn-exclude { flex: 1; text-align: center; background: transparent; border: 1px solid var(--border); padding: 8px 12px; font-size: 11px; font-weight: 800; color: var(--text-primary); cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 40px; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; white-space: nowrap; }
 .btn-exclude:hover { background: var(--bg-hover); border-color: var(--text-primary); }
 .btn-restore { background: transparent; color: var(--text-muted); border-style: dashed;}
 .btn-exclude i { margin-top: 0; }
-.btn-delete { flex: 1; background: transparent; border: 1px solid var(--border); padding: 10px 16px; font-size: 12px; color: var(--text-muted); cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 40px; display: flex; align-items: center; justify-content: center; }
-.btn-delete:hover { border-color: var(--text-primary); color: var(--bg-base); background: var(--text-primary); }
 
 @media (max-width: 768px) {
   .table-header, .table-row { grid-template-columns: 1fr; gap: 8px; }

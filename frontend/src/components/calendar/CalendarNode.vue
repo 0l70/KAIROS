@@ -59,29 +59,28 @@ function onMouseLeave()  { emit('hover-node', null) }
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
-  margin-bottom: 6px;
-  border: 2px solid var(--border);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
   background: var(--bg-elevated);
-  box-shadow: 2px 2px 0 var(--border);
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
   z-index: 10;
 }
 
 .retro-node:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--border);
   border-color: var(--text-primary);
+  background: var(--bg-hover);
+  transform: translateY(-1px);
 }
 
 .retro-node.is-active {
   background: var(--bg-hover);
   border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent), 4px 4px 0 var(--accent);
-  transform: translate(-2px, -2px);
-  z-index: 50; /* 툴팁 활성화 시 최상단 유지 */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+  z-index: 50; 
 }
 
 .is-dimmed {
@@ -112,13 +111,13 @@ function onMouseLeave()  { emit('hover-node', null) }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-family: 'Mulmaru', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .node-time {
   font-size: 10px;
   color: var(--text-muted);
   margin-top: 2px;
-  font-family: 'NeoDunggeunmo', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 </style>

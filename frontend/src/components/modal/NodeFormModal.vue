@@ -176,8 +176,8 @@ function defaultForm() {
   }
 }
 
-const selectedTrackName = computed(() => { const t = allTracks.value.find(x => x.id === localForm.value.track); return t ? t.name : '' })
-const selectedTrackColor = computed(() => { const t = allTracks.value.find(x => x.id === localForm.value.track); return t ? t.color : 'transparent' })
+const selectedTrackName = computed(() => { const t = store.allTracks.find(x => x.id === localForm.value.track); return t ? t.name : '' })
+const selectedTrackColor = computed(() => { const t = store.allTracks.find(x => x.id === localForm.value.track); return t ? t.color : 'transparent' })
 
 const monthMin = computed(() => { if (!localForm.value.day) return ''; const [y, m] = localForm.value.day.split('-').map(Number); return `${y}-${String(m).padStart(2,'0')}-01` })
 const monthMax = computed(() => { if (!localForm.value.day) return ''; const [y, m] = localForm.value.day.split('-').map(Number); const last = new Date(y, m, 0).getDate(); return `${y}-${String(m).padStart(2,'0')}-${String(last).padStart(2,'0')}` })
@@ -193,8 +193,8 @@ watch(() => props.initialForm, (val) => {
   titleError.value = false
 }, { immediate: true })
 
-const availableParents = computed(() => schedules.value.filter(s => s.day <= localForm.value.day && s.id !== props.editNodeId).sort((a, b) => b.day.localeCompare(a.day)))
-const availableChildren = computed(() => schedules.value.filter(s => s.day >= localForm.value.day && s.id !== props.editNodeId).sort((a, b) => a.day.localeCompare(b.day)))
+const availableParents = computed(() => store.schedules.filter(s => s.day <= localForm.value.day && s.id !== props.editNodeId).sort((a, b) => b.day.localeCompare(a.day)))
+const availableChildren = computed(() => store.schedules.filter(s => s.day >= localForm.value.day && s.id !== props.editNodeId).sort((a, b) => a.day.localeCompare(b.day)))
 
 function handleSave() {
   if (!localForm.value.track) { alert('학습 트랙을 선택해주세요.'); return }

@@ -9,32 +9,14 @@
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-group">
-        <button 
-          class="nav-item nav-toggle" 
-          :class="{ 'active': $route.path.startsWith('/calendar') || $route.path.startsWith('/study-calendar') || $route.path.startsWith('/prompt') }"
-          @click="toggleCalendarMenu"
-        >
-          <div class="nav-toggle-left">
-            <i class="fas fa-calendar-alt" /> CALENDAR
-          </div>
-          <i class="fas" :class="isCalendarMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'" />
-        </button>
-        
-        <div v-show="isCalendarMenuOpen" class="nav-sub-menu">
-          <router-link to="/calendar" class="nav-sub-item" active-class="active">
-            <div class="bullet"></div> CALENDAR
-          </router-link>
-          <router-link to="/study-calendar" class="nav-sub-item" active-class="active">
-            <div class="bullet"></div> STUDY CALENDAR
-          </router-link>
-          <router-link to="/prompt" class="nav-sub-item" active-class="active">
-            <div class="bullet"></div> PROMPT
-          </router-link>
-        </div>
-      </div>
+      <router-link to="/calendar" class="nav-item" active-class="active">
+        <i class="fas fa-calendar-alt" /> CALENDAR
+      </router-link>
       <router-link to="/recommend" class="nav-item" active-class="active">
         <i class="fas fa-compass" /> RECOMMEND
+      </router-link>
+      <router-link to="/analyze" class="nav-item" active-class="active">
+        <i class="fas fa-chart-bar" /> ANALYZE
       </router-link>
       <router-link to="/history" class="nav-item" active-class="active">
         <i class="fas fa-history" /> HISTORY
@@ -76,12 +58,6 @@ const isVelogSyncing = ref(false)
 const showToast = ref(false)
 const toastMsg = ref('')
 
-// 캘린더 드랍다운 토글 상태
-const isCalendarMenuOpen = ref(false)
-const toggleCalendarMenu = () => {
-  isCalendarMenuOpen.value = !isCalendarMenuOpen.value
-}
-
 const handleSync = (type) => {
   if (type === 'github') isGithubSyncing.value = true
   else isVelogSyncing.value = true
@@ -108,7 +84,7 @@ const handleSync = (type) => {
   position: relative; z-index: 100; 
 }
 .sidebar-header { 
-  height: 80px; padding: 0 24px; 
+  height: 64px; padding: 0 24px; 
   display: flex; align-items: center; gap: 12px; 
   color: var(--text-primary); 
   border-bottom: 1px solid var(--border); 

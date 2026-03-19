@@ -9,6 +9,7 @@
       'cell--sun': dayOfWeek === 0,
     }"
     @click="handleCellClick"
+    @dblclick="handleDblClick"
   >
     <div class="cell-header">
       <div class="wrapper--today" v-if="isToday">
@@ -27,9 +28,12 @@
       <div v-if="labelSchedules.length" class="label-cluster">
         <div
           v-for="s in visibleSchedules" :key="s.id"
+          :id="'node-' + s.id"
           class="schedule-label-chip"
+          :class="{ 'is-dimmed': dimmedNodeIds.has(s.id) }"
           :style="{ color: trackColor(s.track), borderColor: trackColor(s.track) }"
           @click.stop="$emit('toggle-tooltip', s.id)"
+          @dblclick.stop="$emit('edit-schedule', s)"
           @mouseenter="$emit('hover-node', s)"
           @mouseleave="$emit('hover-node', null)"
         >{{ s.tooltip?.title || s.text }}</div>
@@ -80,6 +84,7 @@ const hiddenCount      = computed(() => Math.max(0, labelSchedules.value.length 
 
 function trackColor(id) { return store.getTrackById?.(id)?.color || 'var(--text-primary)' }
 function handleCellClick() { emit('toggle-tooltip', null); emit('cell-click', props.dateStr) }
+function handleDblClick() { emit('day-detail', props.dateStr) }
 </script>
 
 <style scoped>
@@ -128,14 +133,15 @@ function handleCellClick() { emit('toggle-tooltip', null); emit('cell-click', pr
 
 .label-cluster { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; z-index: 25; position: relative; }
 .schedule-label-chip {
-  font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 0;
-  border: 1px solid currentColor; cursor: pointer; white-space: nowrap;
-  font-family: 'Escoredream', sans-serif; width: 100%; box-sizing: border-box;
+  font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px;
+  border: 1px solid var(--border); cursor: pointer; white-space: nowrap;
+  font-family: 'Inter', sans-serif; width: 100%; box-sizing: border-box;
   overflow: hidden; text-overflow: ellipsis; text-align: left;
-  background: transparent;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  background: var(--bg-elevated);
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
 }
-.schedule-label-chip:hover { transform: translate(-2px, -2px); box-shadow: 2px 2px 0 currentColor; }
+.schedule-label-chip:hover { border-color: var(--text-primary); background: var(--bg-hover); transform: translateY(-1px); }
+.schedule-label-chip.is-dimmed { opacity: 0.15 !important; border-color: var(--border) !important; color: var(--text-muted) !important; filter: grayscale(1); pointer-events: none; }
 .hidden-count { font-size: 10px; font-weight: 700; color: var(--text-muted); padding: 2px 8px; }
 
 .chips-fade-enter-active { transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }

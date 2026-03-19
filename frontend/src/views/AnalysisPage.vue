@@ -2,7 +2,7 @@
   <div class="page-root custom-scroll">
     
     <div class="global-stepper-wrap">
-      <div class="brutal-stepper">
+      <div class="page-stepper">
         <div class="step done">1. 계정 연동</div>
         <div class="step done">2. 사전 설문</div>
         <div class="step done">3. 데이터 분석</div>
@@ -175,11 +175,18 @@ const submitFeedback = () => {
 .custom-scroll::-webkit-scrollbar { display: none; }
 
 .global-stepper-wrap { position: absolute; top: 32px; left: 50%; transform: translateX(-50%); width: 100%; max-width: 640px; padding: 0 24px; z-index: 100; }
-.brutal-stepper { display: flex; gap: 8px; width: 100%; }
-.brutal-stepper .step { flex: 1; text-align: center; padding: 12px 4px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-muted); font-size: 13px; font-weight: 700; font-family: inherit; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; }
-.brutal-stepper .step.active { border-color: var(--text-primary); background: var(--text-primary); color: var(--bg-base); }
-.brutal-stepper .step.done { border-color: var(--border-mid); color: var(--text-primary); background: transparent; }
-@media (max-width: 640px) { .brutal-stepper .step { font-size: 11px; padding: 8px 2px; } }
+.page-stepper { display: flex; gap: 0; width: 100%; border: 1px solid var(--border); overflow: hidden; }
+.page-stepper .step {
+  flex: 1; text-align: center; padding: 10px 4px;
+  background: var(--bg-surface); color: var(--text-muted);
+  font-size: 12px; font-weight: 700; font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap;
+  border-right: 1px solid var(--border);
+}
+.page-stepper .step:last-child { border-right: none; }
+.page-stepper .step.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); }
+.page-stepper .step.done { color: var(--text-primary); background: transparent; }
+@media (max-width: 640px) { .page-stepper .step { font-size: 10px; padding: 8px 2px; } }
 
 .dashboard-content { max-width: 900px; margin: 0 auto; padding: 110px 24px 40px; }
 
